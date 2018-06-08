@@ -113,6 +113,16 @@ Same for the momentum equation in y-direction:
     v_x v_y) + \frac{\partial}{\partial y}(\rho v_y^2 +
     c^2\rho)=-2\Omega\rho v_x
 
+
+.. NOTE::
+   In the shearing sheet the sound speed should really be constant (no
+   locally isothermal shearing sheet). Together, sound speed and
+   angular velocity define a length scale :math:`c/\Omega`, which is a
+   measure of the scale height of the disc. Typically one chooses
+   :math:`c=\Omega=1`, so that distances are measured in scale heights
+   and time in inverse orbital frequency.
+
+
 Cylindrical coordinates
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -143,6 +153,12 @@ In the :math:`\varphi` direction we get a Coriolis source term:
     \frac{\partial}{\partial t}(r\rho v_\varphi) + \frac{\partial}{\partial r}(r\rho
     v_r v_\varphi) + \frac{\partial}{\partial \varphi}(r\rho v_\varphi^2 +
     c^2\rho/r)=-2\rho v_r v_\varphi
+
+.. NOTE::
+   The unit of mass is taken to be the mass of the central object. The
+   unit of distance is some reference radius. The unit of time is the
+   inverse angular velocity at the reference radius. In this system of
+   units, the gravitational constant is unity.
 
 Extra source terms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -385,7 +401,13 @@ Disc-planet interaction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 As the final, most complex example, consider a planet embedded in a
-disc in cylindrical coordinates.
+disc in cylindrical coordinates. Since pyrodeo only includes gravity
+from the central star, we need to provide an extra source term to
+account for the gravitational force due to the planet. In addition, we
+define wave-killing zones on the radial edges of the domain to avoid
+wave reflection.
+
+.. literalinclude:: ../examples/example_planet.py
 
 Class reference
 =========================
