@@ -24,6 +24,26 @@ installed from the command line simply by entering::
 
   pip install pyrodeo
 
+Quick start
+-------------------------------------
+
+Within Python, first import the simulation module::
+
+  >>> import pyrodeo.simulation as prs
+
+Create a simulation in Cartesian geometry with standard parameters::
+
+  >>> sim = prs.Simulation.from_geom(geometry = 'cart')
+
+Run the simulation up to t=0.25::
+
+  >>> sim.evolve([0.25])
+
+Since the standard initial conditions consist of constant density and
+pressure and zero velocity, no visible evolution takes place. For more
+interesting examples, see :ref:`Examples`.
+
+
 Equations solved
 -------------------------------------
 
@@ -67,8 +87,10 @@ in an astrophysical disc. This patch is rotating at the local
 Keplerian velocity, which means that Coriolis and centrifugal-type forces need to be
 included on the right-hand side of the equations. On the other hand,
 the patch is assumed to be small enough so that a local Cartesian
-frame can be used in stead of cylindrical coordinates. We therefore
-still have the continuity equation:
+frame can be used in stead of cylindrical coordinates. Usually the
+computational domain is taken to be periodic in y and shear-periodic
+in x (periodic but corrected for the shear). We therefore still have
+the continuity equation:
 
 .. math::
 
@@ -121,6 +143,15 @@ In the :math:`\varphi` direction we get a Coriolis source term:
     \frac{\partial}{\partial t}(r\rho v_\varphi) + \frac{\partial}{\partial r}(r\rho
     v_r v_\varphi) + \frac{\partial}{\partial \varphi}(r\rho v_\varphi^2 +
     c^2\rho/r)=-2\rho v_r v_\varphi
+
+Extra source terms
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pyrodeo solves inviscid isothermal hydrodynamics, and in the shearing
+sheet and  cylindrical geometries only gravity from the central object is
+considered. Extra physics, as far as it concerns extra source terms,
+can be added by a user-defined source function. See the :ref:`Examples`
+section.
 
 Numerical method
 -------------------------------
@@ -261,14 +292,95 @@ in the :class:`.LinearAdvection` class. The remaining terms are
 integrated in the :class:`.Roe` class, but at a much larger time step
 because presumably :math:`u_y \ll v_0`.
 
+Algorithm overview
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+A single time step in :func:`Hydro.evolve <pyrodeo.hydro.Hydro.evolve>` consists of the following steps:
+
+1. Calculate time step using :func:`Hydro.calc_time_step
+   <pyrodeo.hydro.Hydro.calc_time_step>`.
+
+2. Set shear periodic boundary conditions if necessary.
+
+3. Preprocessing step to cast the equations in the same form for all
+   geometries and directions, while at the same time calculating the
+   source term using :func:`Hydro.preprocess
+   <pyrodeo.hydro.Hydro.preprocess>`.
+
+4. Use the Roe solver to advance the hydrodynamic equations using
+   :func:`Roe.step <pyrodeo.roe.Roe.step>`.
+
+5. Do orbital advection if necessary using :func:`Hydro.orbital_advection
+   <pyrodeo.hydro.Hydro.orbital_advection>`.
+
+6. Do the inverse of step 3, getting all quantities back to their
+   original form in :func:`Hydro.postprocess
+   <pyrodeo.hydro.Hydro.postprocess>`.
+
+7. Integrate any extra source terms.
+
+Output
+-------------------------------
+
+Once the integration routine :func:`Simulation.evolve
+<pyrodeo.simulation.Simulation.evolve>` has finished the final state
+is available through :func:`simulation.state`. In addition, an output
+file `rodeo.h5` is created containing the state at all specified
+checkpoints. This is an HDF5 file created with h5py. It contains the
+following groups:
+
+* param: Simulation parameters as specified in the
+  :class:`Param <pyrodeo.param.Param>` class.
+
+* coords: Coordinates from the :class:`Coordinates
+  <pyrodeo.coords.Coordinates>` class.
+
+* checkpoint#: State at checkpoint, where # stands for an integer.
+
+.. NOTE::
+    The value stored in `state.vely` is the y-velocity with the
+    orbital advection velocity removed! In other words, the
+    equilibrium solution in a constant pressure shearing sheet or
+    cylindrical disc has vanishing `state.vely`.
+
+An example of reading the file and plotting using matplotlib:
+
+.. literalinclude:: ../examples/example_plot.py
+
+.. _Examples:
 
 Examples
 -------------------------------
 
-A simple example in Cartesian geometry is an isothermal shock tube:
+Shock tube
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. literalinclude:: ../examples/test_cartesian.py
+A simple example in Cartesian geometry is a one-dimensional isothermal shock tube:
+
+.. literalinclude:: ../examples/example_cartesian.py
+
+The standard grid dimensions are `(100,1)`, which means 100 cells in x
+and 1 in y. Try a higher resolution by explicitly specifying the dimensions in
+:func:`Simulation.from_geom <pyrodeo.simulation.Simulation.from_geom>`.
+
+Instability in shearing sheet
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A more demanding two-dimensional calculation involves the instability
+of a sharp density ridge in the shearing sheet:
+
+.. literalinclude:: ../examples/example_sheet.py
+
+The checkpoints have been chosen close enough together to allow for
+the results to be animated:
+
+.. literalinclude:: ../examples/example_animation.py
+
+Disc-planet interaction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As the final, most complex example, consider a planet embedded in a
+disc in cylindrical coordinates.
 
 Class reference
 =========================
@@ -322,10 +434,3 @@ Simulation
 
 .. automodule:: pyrodeo.simulation
    :members:
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
