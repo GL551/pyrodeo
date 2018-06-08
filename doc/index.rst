@@ -29,11 +29,11 @@ Quick start
 
 Within Python, first import the simulation module::
 
-  >>> import pyrodeo.simulation as prs
+  >>> import pyrodeo
 
 Create a simulation in Cartesian geometry with standard parameters::
 
-  >>> sim = prs.Simulation.from_geom(geometry = 'cart')
+  >>> sim = pyrodeo.Simulation.from_geom('cart')
 
 Run the simulation up to t=0.25::
 
@@ -336,6 +336,11 @@ following groups:
   <pyrodeo.coords.Coordinates>` class.
 
 * checkpoint#: State at checkpoint, where # stands for an integer.
+
+.. NOTE::
+   Both state and coordinate arrays include two ghost zones on each
+   side in all directions. This is in order to be able to restore a
+   simulation from a checkpoint.
 
 .. NOTE::
     The value stored in `state.vely` is the y-velocity with the
