@@ -1,6 +1,8 @@
 Pyrodeo
 ========================
 
+.. image:: http://img.shields.io/badge/pyrodeo-v0.0.5-green.svg?style=flat
+    :target: http://pyrodeo.readthedocs.org
 .. image:: http://img.shields.io/badge/license-GPL-green.svg?style=flat
     :target: https://github.com/SijmeJan/pyrodeo/blob/master/LICENSE
 
