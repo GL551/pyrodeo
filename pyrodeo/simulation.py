@@ -46,7 +46,7 @@ class Simulation(object):
 
     @classmethod
     def from_geom(cls,
-                  geometry='cart',
+                  geometry,
                   dimensions=(100, 1),
                   domain=([-0.5, 0.5], []),
                   direc='./'):
