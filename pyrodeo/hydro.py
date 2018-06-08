@@ -31,8 +31,8 @@ class Hydro:
             v_adv = (-1.5*coords.x).transpose()
         if param.geometry == 'cyl':
             v_adv = (np.power(coords.x, -1.5) - param.Omega).transpose()
-        self.orbital_advection = LinearAdvection(v_adv, param.fluxlimiter)
-        self.roe = Roe(param.fluxlimiter, 1.0e-6)
+        self.orbital_advection = LinearAdvection(v_adv, param.limiter_param)
+        self.roe = Roe(param.limiter_param, 1.0e-6)
 
     def calc_time_step(self, geometry, coords, state):
         """Calculate time step obeying the CFL condition.

@@ -24,18 +24,18 @@ class Param(object):
     Attributes:
         geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet) or 'cyl' (cylindrical coordinates)
         courant (float): Courant number, should be > 0 and < 1.
-        fluxlimiter (float): Flux limiter parameter. Should be between 1 (minmod) and 2 (superbee).
+        limiter_param (float): Limiter parameter. Should be between 1 (minmod) and 2 (superbee).
         Omega (float): Frame rotation rate. Ignored in Cartesian coordinates, should be unity in a shearing sheet calculation and corresponds to the angular velocity of the coordinate frame in cylindrical coordinates.
         boundaries (string, string): Boundary conditions in x and y: 'nonreflect', 'reflect', or 'periodic'.
 
     """
 
     def __init__(self, param_list):
-        self.geometry    = param_list[0]
-        self.courant     = param_list[1]
-        self.fluxlimiter = param_list[2]
-        self.Omega       = param_list[3]
-        self.boundaries  = [param_list[4], param_list[5]]
+        self.geometry      = param_list[0]
+        self.courant       = param_list[1]
+        self.limiter_param = param_list[2]
+        self.Omega         = param_list[3]
+        self.boundaries    = [param_list[4], param_list[5]]
 
     @classmethod
     def from_geom(cls,
@@ -51,7 +51,7 @@ class Param(object):
 
         """
         courant = 0.4
-        fluxlimiter = 1.0
+        limiter_param = 1.0
         Omega = 1.0
         #if geometry == 'sheet':
         #    raise ValueError('Shearing sheet currently not supported')
@@ -72,7 +72,7 @@ class Param(object):
 
         return cls([geometry,
                     courant,
-                    fluxlimiter,
+                    limiter_param,
                     Omega,
                     boundaries[0],
                     boundaries[1]])
@@ -88,14 +88,14 @@ class Param(object):
         """
         param_dtype = np.dtype([('geom', h5py.special_dtype(vlen=str)),
                                 ('courant', np.float),
-                                ('fluxlimiter', np.float),
+                                ('limiter_param', np.float),
                                 ('Omega', np.float),
                                 ('boundary_x', h5py.special_dtype(vlen=str)),
                                 ('boundary_y', h5py.special_dtype(vlen=str))])
 
         return param_dtype, [(self.geometry,
                               self.courant,
-                              self.fluxlimiter,
+                              self.limiter_param,
                               self.Omega,
                               self.boundaries[0],
                               self.boundaries[1])]
