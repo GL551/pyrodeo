@@ -64,6 +64,7 @@ class Simulation(object):
         dt, param = Param.from_geom(geometry).to_list()
 
         coords = Coordinates.from_dims(dimensions, domain)
+
         state = State.from_dims((len(coords.x[:,0]),
                                  len(coords.x[0,:])))
         t = 0.0

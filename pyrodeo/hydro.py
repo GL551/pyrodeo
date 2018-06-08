@@ -242,13 +242,13 @@ class Hydro:
                     dt = 0.5*dt
                     success = False
 
-            # Integrate extra source terms
+            # Integrate extra source terms (ignoring ghost zones!)
             if source_func is not None:
                 sdens, svelx, svely = \
                   source_func(t, coords, state, source_param)
-                state.dens += dt*sdens
-                state.velx += dt*svelx
-                state.vely += dt*svely
+                state.dens += dt*sdens*state.no_ghost
+                state.velx += dt*svelx*state.no_ghost
+                state.vely += dt*svely*state.no_ghost
 
             # Update simulation time
             t = t + dt

@@ -27,6 +27,7 @@ class State(object):
         velx (ndarray): 2D ndarray containing x velocity.
         vely (ndarray): 2D ndarray containing y velocity.
         soundspeed (ndarray): 2D ndarray containing sound speed.
+        no_ghost (ndarray): 2D ndarray flagging whether a cell is a ghost cell (=0) or an internal cell (=1)
 
     """
 
@@ -35,6 +36,13 @@ class State(object):
         self.velx = velx
         self.vely = vely
         self.soundspeed = soundspeed
+
+        self.no_ghost = np.full(np.shape(dens), 1)
+        self.no_ghost[:2,:]  = 0
+        self.no_ghost[-2:,:] = 0
+        if len(dens[0,:]) > 1:
+            self.no_ghost[:,:2]  = 0
+            self.no_ghost[:,-2:] = 0
 
     @classmethod
     def from_dims(cls, dims):
@@ -81,6 +89,7 @@ class State(object):
         self.velx = np.transpose(self.velx)
         self.vely = np.transpose(self.vely)
         self.soundspeed = np.transpose(self.soundspeed)
+        self.no_ghost = np.transpose(self.no_ghost)
 
     def swap_velocities(self):
         """Swap x and y velocities."""

@@ -80,18 +80,24 @@ class Roe(ClawSolver):
             bc (str): Boundary condition: 'periodic' or 'reflect' (other boundary conditions are dealt with elsewhere).
 
         """
-        nx = len(state.dens[:,0])
-        ny = len(state.dens[0,:])
+        #nx = len(state.dens[:,0])
+        #ny = len(state.dens[0,:])
 
         # Set periodic boundaries
         if bc == 'periodic':
-            state.dens[:2,:] = state.dens[nx-4:nx-2,:]
-            state.velx[:2,:] = state.velx[nx-4:nx-2,:]
-            state.vely[:2,:] = state.vely[nx-4:nx-2,:]
+            #state.dens[:2,:] = state.dens[nx-4:nx-2,:]
+            #state.velx[:2,:] = state.velx[nx-4:nx-2,:]
+            #state.vely[:2,:] = state.vely[nx-4:nx-2,:]
+            state.dens[:2,:] = state.dens[-4:-2,:]
+            state.velx[:2,:] = state.velx[-4:-2,:]
+            state.vely[:2,:] = state.vely[-4:-2,:]
 
-            state.dens[nx-2:,:] = state.dens[2:4,:]
-            state.velx[nx-2:,:] = state.velx[2:4,:]
-            state.vely[nx-2:,:] = state.vely[2:4,:]
+            #state.dens[nx-2:,:] = state.dens[2:4,:]
+            #state.velx[nx-2:,:] = state.velx[2:4,:]
+            #state.vely[nx-2:,:] = state.vely[2:4,:]
+            state.dens[-2:,:] = state.dens[2:4,:]
+            state.velx[-2:,:] = state.velx[2:4,:]
+            state.vely[-2:,:] = state.vely[2:4,:]
 
         dens_left = np.roll(state.dens, 1, axis=0)
         velx_left = np.roll(state.velx, 1, axis=0)
@@ -198,45 +204,49 @@ class Roe(ClawSolver):
             fmomx[2,:] = state.soundspeed[2,:]*state.soundspeed[2,:]* \
               state.dens[2,:] - 0.5*dx*source[2,:]
             fmomy[2,:] = 0.0
-            fdens[nx-2,:] = 0.0
-            fmomx[nx-2,:] = state.soundspeed[nx-3,:]* \
-              state.soundspeed[nx-3,:]*state.dens[nx-3,:] + \
-              0.5*dx*source[nx-3,:]
-            fmomy[nx-2,:] = 0.0
+            fdens[-2,:] = 0.0
+            fmomx[-2,:] = state.soundspeed[-3,:]* \
+              state.soundspeed[-3,:]*state.dens[-3,:] + \
+              0.5*dx*source[-3,:]
+            fmomy[-2,:] = 0.0
 
         # Interface flux difference: (i+1) - (i)
         dfdens = np.roll(fdens, -1, axis=0) - fdens
         dfmomx = np.roll(fmomx, -1, axis=0) - fmomx
         dfmomy = np.roll(fmomy, -1, axis=0) - fmomy
 
-        # Change in density and momenta
-        ddens = -dtdx*dfdens
-        dmomx = dt*source - dtdx*dfmomx
-        dmomy = -dtdx*dfmomy
+        # Change in density and momenta (ignoring ghost cells)
+        ddens = -dtdx*dfdens*state.no_ghost
+        dmomx = (dt*source - dtdx*dfmomx)*state.no_ghost
+        dmomy = -dtdx*dfmomy*state.no_ghost
 
-        # Ghost cells are unaffected
-        if ny > 1:
-            ddens[:,0] = 0.0
-            dmomx[:,0] = 0.0
-            dmomy[:,0] = 0.0
+        state.dens += ddens
+        state.velx += (dmomx - ddens*state.velx)/state.dens
+        state.vely += (dmomy - ddens*state.vely)/state.dens
 
-            ddens[:,1] = 0.0
-            dmomx[:,1] = 0.0
-            dmomy[:,1] = 0.0
+        ## # Ghost cells are unaffected
+        ## if ny > 1:
+        ##     ddens[:,0] = 0.0
+        ##     dmomx[:,0] = 0.0
+        ##     dmomy[:,0] = 0.0
 
-            ddens[:,ny-1] = 0.0
-            dmomx[:,ny-1] = 0.0
-            dmomy[:,ny-1] = 0.0
+        ##     ddens[:,1] = 0.0
+        ##     dmomx[:,1] = 0.0
+        ##     dmomy[:,1] = 0.0
 
-            ddens[:,ny-2] = 0.0
-            dmomx[:,ny-2] = 0.0
-            dmomy[:,ny-2] = 0.0
+        ##     ddens[:,ny-1] = 0.0
+        ##     dmomx[:,ny-1] = 0.0
+        ##     dmomy[:,ny-1] = 0.0
 
-        # View without ghost cells x
-        dens = state.dens[2:nx-2,:]
-        velx = state.velx[2:nx-2,:]
-        vely = state.vely[2:nx-2,:]
+        ##     ddens[:,ny-2] = 0.0
+        ##     dmomx[:,ny-2] = 0.0
+        ##     dmomy[:,ny-2] = 0.0
 
-        dens += ddens[2:nx-2,:]
-        velx += (dmomx[2:nx-2,:] - ddens[2:nx-2,:]*velx)/dens
-        vely += (dmomy[2:nx-2,:] - ddens[2:nx-2,:]*vely)/dens
+        ## # View without ghost cells x
+        ## dens = state.dens[2:nx-2,:]
+        ## velx = state.velx[2:nx-2,:]
+        ## vely = state.vely[2:nx-2,:]
+
+        ## dens += ddens[2:nx-2,:]
+        ## velx += (dmomx[2:nx-2,:] - ddens[2:nx-2,:]*velx)/dens
+        ## vely += (dmomy[2:nx-2,:] - ddens[2:nx-2,:]*vely)/dens
