@@ -158,7 +158,8 @@ In the :math:`\varphi` direction we get a Coriolis source term:
    The unit of mass is taken to be the mass of the central object. The
    unit of distance is some reference radius. The unit of time is the
    inverse angular velocity at the reference radius. In this system of
-   units, the gravitational constant is unity.
+   units, the gravitational constant is unity, and one orbit equals
+   :math:`2\pi` time units.
 
 Extra source terms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
