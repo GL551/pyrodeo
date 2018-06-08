@@ -343,7 +343,9 @@ Once the integration routine :func:`Simulation.evolve
 <pyrodeo.simulation.Simulation.evolve>` has finished the final state
 is available through :func:`simulation.state`. In addition, an output
 file `rodeo.h5` is created containing the state at all specified
-checkpoints. This is an HDF5 file created with h5py. It contains the
+checkpoints. This is an `HDF5
+<https://en.wikipedia.org/wiki/Hierarchical_Data_Format>`_ file
+created with `h5py <https://www.h5py.org/>`_. It contains the
 following groups:
 
 * param: Simulation parameters as specified in the
@@ -365,7 +367,7 @@ following groups:
     equilibrium solution in a constant pressure shearing sheet or
     cylindrical disc has vanishing `state.vely`.
 
-An example of reading the file and plotting using matplotlib:
+An example of reading the file and plotting using `matplotlib <https://matplotlib.org/>`_:
 
 .. literalinclude:: ../examples/example_plot.py
 
@@ -406,7 +408,9 @@ disc in cylindrical coordinates. Since pyrodeo only includes gravity
 from the central star, we need to provide an extra source term to
 account for the gravitational force due to the planet. In addition, we
 define wave-killing zones on the radial edges of the domain to avoid
-wave reflection.
+wave reflection. It will take some time to run this simulation, so
+have a cup of tea and come back to see a Jupiter-like planet carve out
+a gap in the disc.
 
 .. literalinclude:: ../examples/example_planet.py
 
