@@ -7,11 +7,7 @@ python:
 
 # command to install dependencies
 install:
-  - pip install coveralls
   - pip install pyrodeo
 
 # command to run tests
-script: coverage run --source=pyrodeo $TRAVIS_BUILD_DIR/test/test_linear_advection.py
-
-after_success:
-  - coveralls
+script: pytest
