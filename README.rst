@@ -7,6 +7,8 @@ Pyrodeo
     :target: http://pyrodeo.readthedocs.org
 .. image:: http://img.shields.io/badge/license-GPL-green.svg?style=flat
     :target: https://github.com/SijmeJan/pyrodeo/blob/master/LICENSE
+.. image:: https://img.shields.io/pypi/pyversions/pyrodeo.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/pyrodeo
 
 Pyrodeo is a Python implementation of the isothermal hydrodynamic
 solver RODEO  (ROe solver for Disc-Embedded Objects). Its main purpose
