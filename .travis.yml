@@ -11,7 +11,7 @@ install:
   - pip install pyrodeo
 
 # command to run tests
-script: coverage run --source=pyrodeo test/test_linear_advection.py
+script: coverage run --source=pyrodeo $TRAVIS_BUILD_DIR/test/test_linear_advection.py
 
 after_success:
   - coveralls
