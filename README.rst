@@ -54,3 +54,17 @@ Documentation
 The full documentation can be found at
 
 http://pyrodeo.readthedocs.org
+
+Changelog
+=========
+
+Version 0.0.6
+--------------
+
+* Make `source_func` a source term integrator rather than just returning the extra source terms.
+* Move tests inside package.
+
+Version 0.0.5
+--------------
+
+* Initial release
