@@ -3,7 +3,7 @@ Pyrodeo
 
 .. image:: https://badge.fury.io/py/pyrodeo.svg
     :target: https://badge.fury.io/py/pyrodeo
-.. image:: http://img.shields.io/badge/pyrodeo-v0.0.5-green.svg?style=flat
+.. image:: https://readthedocs.org/projects/pip/badge/?version=stable&style=flat
     :target: http://pyrodeo.readthedocs.org
 .. image:: http://img.shields.io/badge/license-GPL-green.svg?style=flat
     :target: https://github.com/SijmeJan/pyrodeo/blob/master/LICENSE
