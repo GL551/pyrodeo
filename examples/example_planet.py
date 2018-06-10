@@ -4,7 +4,7 @@ import numpy as np
 import pyrodeo
 
 # Extra source terms: planet gravity
-def planet_source(t, coords, state, planetParam):
+def planet_source(t, dt, coords, state, planetParam):
     # Mass ratio planet/star
     mp = planetParam[0]
     # Softening length planet potential
@@ -45,8 +45,10 @@ def planet_source(t, coords, state, planetParam):
     source_velx -= state.velx*R
     source_vely -= state.vely*R
 
-    # Resulting source term
-    return source_dens, source_velx, source_vely
+    # Integrate extra source terms
+    state.dens += dt*source_dens*state.no_ghost
+    state.velx += dt*source_velx*state.no_ghost
+    state.vely += dt*source_vely*state.no_ghost
 
 sim = pyrodeo.Simulation.from_geom('cyl',
                                    dimensions=[128, 384],
