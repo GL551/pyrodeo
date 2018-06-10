@@ -182,7 +182,7 @@ class Hydro:
             coords (:class:`.Coordinates`): Valid :class:`.Coordinates` object, containing x and y coordinates.
             param (:class:`.Param`): Valid :class:`.Param` object, containing simulation parameters.
             state (:class:`.State`): Valid :class:`.State` object, containing density and velocity.
-            source_func (callable): Function returning any extra source terms (non-geometric). It should accept the following arguments: t, coords, state, source_param and return density source, x velocity source, y velocity source.
+            source_func (callable): Function integrating any extra source terms (non-geometric). It should accept the following arguments: t, dt, coords, state, source_param.
             source_param (array-like): Extra parameters for source_func.
 
         Returns:
@@ -244,11 +244,12 @@ class Hydro:
 
             # Integrate extra source terms (ignoring ghost zones!)
             if source_func is not None:
-                sdens, svelx, svely = \
-                  source_func(t, coords, state, source_param)
-                state.dens += dt*sdens*state.no_ghost
-                state.velx += dt*svelx*state.no_ghost
-                state.vely += dt*svely*state.no_ghost
+                #sdens, svelx, svely = \
+                #  source_func(t, coords, state, source_param)
+                #state.dens += dt*sdens*state.no_ghost
+                #state.velx += dt*svelx*state.no_ghost
+                #state.vely += dt*svely*state.no_ghost
+                source_func(t, dt, coords, state, source_param)
 
             # Update simulation time
             t = t + dt
