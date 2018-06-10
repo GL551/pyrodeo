@@ -119,8 +119,8 @@ class Simulation(object):
 
         Args:
             checkpoints (ndarray): List of times to save checkpoints.
-            Source (:obj:`callable`, optional): Extra source terms. Must be of the form f(t, coords, state, source_param) and return three source terms of the same shape as state.dens: density source term, x velocity source term and y velocity source term.
-            source_param (:obj:`ndarray`, optional): Parameters for extra source term. Will be passed to the Source function.
+            source_func (:obj:`callable`, optional): Integrate extra source terms. Must be of the form f(t, dt, coords, state, source_param).
+            source_param (:obj:`ndarray`, optional): Parameters for extra source term. Will be passed to `source_func`.
             new_file (:obj:`bool`,optional): If true, create new output file 'rodeo.h5', otherwise append to file if it exists.
 
         """
