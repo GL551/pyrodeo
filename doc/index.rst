@@ -167,7 +167,7 @@ Extra source terms
 Pyrodeo solves inviscid isothermal hydrodynamics, and in the shearing
 sheet and  cylindrical geometries only gravity from the central object is
 considered. Extra physics, as far as it concerns extra source terms,
-can be added by a user-defined source function. See the :ref:`Examples`
+can be added by a user-defined source integration function. See the :ref:`Examples`
 section.
 
 Numerical method
