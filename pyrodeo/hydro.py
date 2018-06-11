@@ -30,7 +30,8 @@ class Hydro:
         if param.geometry == 'sheet':
             v_adv = (-1.5*coords.x).transpose((1,0,2))
         if param.geometry == 'cyl':
-            v_adv = (np.power(coords.x, -1.5) - param.Omega).transpose((1,0,2))
+            v_adv = (np.power(coords.x, -1.5) -
+                     param.frame_rotation).transpose((1,0,2))
         self.orbital_advection = LinearAdvection(v_adv, param.limiter_param)
         self.roe = Roe(param.limiter_param, param.min_dens)
 
@@ -127,21 +128,18 @@ class Hydro:
 
         if param.geometry == 'sheet':
             if direction == 0:
-                state.vely += 0.5*param.Omega*coords.x
-                source = 2.0*state.dens*param.Omega*(state.vely -
-                                                     0.5*param.Omega*coords.x)
+                state.vely += 0.5*param.frame_rotation*coords.x
+                source = 2.0*state.dens*param.frame_rotation*\
+                  (state.vely - 0.5*param.frame_rotation*coords.x)
             if direction == 2:
-                source = -state.dens*param.Omega*param.Omega*coords.z
+                source = -state.dens*param.frame_rotation*\
+                  param.frame_rotation*coords.z
 
         if param.geometry == 'cyl':
             if direction == 0:
                 state.dens *= coords.x
                 state.vely = coords.x*coords.x*(state.vely +
                                                 np.power(coords.x, -1.5))
-                #source = \
-                #    (state.vely*state.vely/coords.x -
-                #     1.0)*state.dens/(coords.x*coords.x) + \
-                #state.soundspeed*state.soundspeed*state.dens/coords.x
                 dpot = coords.x*np.power(coords.x*coords.x +
                                          coords.z*coords.z, -1.5)
                 source = \
@@ -190,7 +188,7 @@ class Hydro:
 
         if param.geometry == 'sheet':
             if direction == 0:
-                state.vely -= 0.5*param.Omega*coords.x
+                state.vely -= 0.5*param.frame_rotation*coords.x
 
         if param.geometry == 'cyl':
             if direction == 0:
@@ -199,14 +197,6 @@ class Hydro:
                 np.power(coords.x, -1.5)
             if direction == 1:
                 state.soundspeed *= coords.x
-
-        #if np.min(state.dens) < 0.0:
-        #    i = np.unravel_index(np.argmin(state.dens, axis=None),
-        #                         state.dens.shape)
-        #    print("Negative density encountered after integrating" +
-        #          " direction {} at x = {}, y = {}".format(direction,
-        #                                                   coords.x[i],
-        #                                                   coords.y[i]))
 
     def evolve(self, t, t_max, coords, param, state,
                source_func, source_param):
