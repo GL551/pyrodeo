@@ -109,4 +109,4 @@ class State(object):
         if dim == 2:
             tmp = self.velx
             self.velx = self.velz
-            self.vely = tmp
+            self.velz = tmp
