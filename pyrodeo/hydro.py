@@ -47,16 +47,16 @@ class Hydro:
 
         """
         cs = state.soundspeed
-        dtx = coords.dxy[0]/np.max(np.abs(state.velx) + cs)
+        dtx = coords.dxyz[0]/np.max(np.abs(state.velx) + cs)
         dty = dtx
         dtz = dtx
         if len(state.dens[0,:,0]) > 1:
             if geometry == 'cyl':
                 cs = state.soundspeed/coords.x
-            dty = coords.dxy[1]/np.max(np.abs(state.vely) + cs)
+            dty = coords.dxyz[1]/np.max(np.abs(state.vely) + cs)
 
-       if len(state.dens[0,0,:]) > 1:
-            dtz = coords.dxy[2]/np.max(np.abs(state.velz) + cs)
+        if len(state.dens[0,0,:]) > 1:
+            dtz = coords.dxyz[2]/np.max(np.abs(state.velz) + cs)
 
         return np.min([dtx, dty, dtz])
 
@@ -74,10 +74,11 @@ class Hydro:
         dens = np.concatenate((state.dens[-4:-2,:,:], state.dens[2:4,:,:]))
         velx = np.concatenate((state.velx[-4:-2,:,:], state.velx[2:4,:,:]))
         vely = np.concatenate((state.vely[-4:-2,:,:], state.vely[2:4,:,:]))
-        temp_state = State(dens, velx, vely, vely)
+        velz = np.concatenate((state.velz[-4:-2,:,:], state.velz[2:4,:,:]))
+        temp_state = State(dens, velx, vely, velz, velz)
 
         # Advection velocity is speed of next box
-        v_adv = 0.0*dens + 1.5*(coords.x[nx-2,0,0] + coords.x[nx-3,0,0])
+        v_adv = 0.0*dens + 1.5*(coords.x[-2:-1,0,0] + coords.x[-3:-2,0,0])
         v_adv[2:4,:] = -v_adv[2:4,:,:]
 
         # Linear advection since t = 0 when solution was periodic
@@ -85,7 +86,7 @@ class Hydro:
         v_adv = v_adv.transpose((1,0,2))
 
         la = LinearAdvection(v_adv, self.orbital_advection.sb)
-        la.step(t, coords.dxy[1], temp_state)
+        la.step(t, coords.dxyz[1], temp_state)
 
         temp_state.transpose((1,0,2))
 
@@ -93,9 +94,12 @@ class Hydro:
         state.dens[:2,:,:]  = temp_state.dens[:2,:,:]
         state.velx[:2,:,:]  = temp_state.velx[:2,:,:]
         state.vely[:2,:,:]  = temp_state.vely[:2,:,:]
+        state.velz[:2,:,:]  = temp_state.velz[:2,:,:]
+
         state.dens[-2:,:,:] = temp_state.dens[2:,:,:]
         state.velx[-2:,:,:] = temp_state.velx[2:,:,:]
         state.vely[-2:,:,:] = temp_state.vely[2:,:,:]
+        state.velz[-2:,:,:] = temp_state.velz[2:,:,:]
 
     def preprocess(self, coords, param, state, direction):
         """Modify state to quasi-cartesian form and calculate geometric source terms.
@@ -134,7 +138,8 @@ class Hydro:
                 dpot = coords.x*np.power(coords.x*coords.x +
                                          coords.z*coords.z, -1.5)
                 source = \
-                    state.vely*state.vely/(coords.x*coords.x*coords.x) -
+                    state.dens*state.vely*state.vely/ \
+                    (coords.x*coords.x*coords.x) - \
                     state.dens*dpot + \
                 state.soundspeed*state.soundspeed*state.dens/coords.x
             if direction == 1:
@@ -245,13 +250,13 @@ class Hydro:
                         source = self.preprocess(coords, param, state, dim)
 
                         # Hydrodynamic update
-                        self.roe.step(dt, coords.dxy[dim], state,
+                        self.roe.step(dt, coords.dxyz[dim], state,
                                       source, param.boundaries[dim])
 
                         # Orbital advection
                         if dim == 1:
                             self.orbital_advection.step(dt,
-                                                        coords.dxy[dim],
+                                                        coords.dxyz[dim],
                                                         state)
 
                         self.postprocess(coords, param, state, dim)
