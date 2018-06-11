@@ -32,14 +32,14 @@ class Coordinates(object):
 
     def __init__(self, x, y, z):
         self.dimensions = (len(x[:,0,0]), len(y[0,:,0]), len(z[0,0,:]))
-        dx = x[1,0,0] - x[0,0,0]
-        dy = dx
-        dz = dx
-        if len(y[0,:,0]) > 1:
-            dy = y[0,1,0] - y[0,0,0]
-        if len(z[0,0,:]) > 1:
-            dz = z[0,0,1] - z[0,0,0]
-        self.dxyz = [dx, dy, dz]
+        self.dxyz = [0.0, 0.0, 0.0]
+
+        if self.dimensions[0] > 1:
+            self.dxyz[0] = x[1,0,0] - x[0,0,0]
+        if self.dimensions[1] > 1:
+            self.dxyz[1] = y[0,1,0] - y[0,0,0]
+        if self.dimensions[2] > 1:
+            self.dxyz[2] = z[0,0,1] - z[0,0,0]
 
         self.x = x
         self.y = y
@@ -82,25 +82,33 @@ class Coordinates(object):
             raise TypeError('Invalid y domain')
         if (dimensions[2] != 1 and len(domain[2]) != 2):
             raise TypeError('Invalid z domain')
-        if dimensions[0] <= 1:
-            raise ValueError('First grid dimension should be larger than 1')
+        if np.max(dimensions) <= 1:
+            raise ValueError('Need one dimension to be larger than 1')
 
         # Check if domain is valid
         if len(domain) != 3:
             raise TypeError('Expected domain to have three elements')
-        if domain[0][1] <= domain[0][0]:
-            raise ValueError('Invalid x domain')
 
+        # Step sizes
+        dxy = [0.0, 0.0, 0.0]
         # Step sizes (all x for now, do y and z later if necessary)
-        dxy = [(domain[0][1] - domain[0][0])/np.float(dimensions[0]),
-               (domain[0][1] - domain[0][0])/np.float(dimensions[0]),
-               (domain[0][1] - domain[0][0])/np.float(dimensions[0])]
+        #dxy = [(domain[0][1] - domain[0][0])/np.float(dimensions[0]),
+        #       (domain[0][1] - domain[0][0])/np.float(dimensions[0]),
+        #       (domain[0][1] - domain[0][0])/np.float(dimensions[0])]
 
-        # x coordinates, including two ghost cells on either side
-        x = np.linspace(domain[0][0] - 1.5*dxy[0],
-                        domain[0][1] + 2.5*dxy[0],
-                        dimensions[0] + 4,
-                        endpoint=False)
+        # Add x if necessary
+        if dimensions[0] > 1:
+            if domain[0][1] <= domain[0][0]:
+                raise ValueError('Invalid x domain')
+            dxy[0] = (domain[0][1] - domain[0][0])/np.float(dimensions[0])
+
+            # x coordinates, including two ghost cells on either side
+            x = np.linspace(domain[0][0] - 1.5*dxy[0],
+                            domain[0][1] + 2.5*dxy[0],
+                            dimensions[0] + 4,
+                            endpoint=False)
+        else:
+            x = [0.0]
 
         # Add y if necessary
         if dimensions[1] > 1:

@@ -41,8 +41,9 @@ class State(object):
         self.soundspeed = soundspeed
 
         self.no_ghost = np.full(np.shape(dens), 1)
-        self.no_ghost[:2,:,:]  = 0
-        self.no_ghost[-2:,:,:] = 0
+        if len(dens[:,0,0]) > 1:
+            self.no_ghost[:2,:,:]  = 0
+            self.no_ghost[-2:,:,:] = 0
         if len(dens[0,:,0]) > 1:
             self.no_ghost[:,:2,:]  = 0
             self.no_ghost[:,-2:,:] = 0

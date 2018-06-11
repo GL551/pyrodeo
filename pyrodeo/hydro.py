@@ -47,9 +47,12 @@ class Hydro:
 
         """
         cs = state.soundspeed
-        dtx = coords.dxyz[0]/np.max(np.abs(state.velx) + cs)
+
+        dtx = 1.0e10
         dty = dtx
         dtz = dtx
+        if len(state.dens[:,0,0]) > 1:
+            dtx = coords.dxyz[0]/np.max(np.abs(state.velx) + cs)
         if len(state.dens[0,:,0]) > 1:
             if geometry == 'cyl':
                 cs = state.soundspeed/coords.x
@@ -70,6 +73,10 @@ class Hydro:
             coords (:class:`.Coordinates`): Valid :class:`.Coordinates` object, containing x and y coordinates.
             state (:class:`.State`): Valid :class:`.State` object, containing density and velocity.
         """
+        # Single cell in x; nothing to do
+        if len(state.dens[:,0,0]) <= 1:
+            return
+
         # Create State made just of ghost zones
         dens = np.concatenate((state.dens[-4:-2,:,:], state.dens[2:4,:,:]))
         velx = np.concatenate((state.velx[-4:-2,:,:], state.velx[2:4,:,:]))
