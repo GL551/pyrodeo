@@ -45,13 +45,14 @@ class LinearAdvection(ClawSolver):
         # Work with momenta
         state.velx = state.velx*state.dens
         state.vely = state.vely*state.dens
+        state.velz = state.velz*state.dens
 
         # Length of state in x and y
-        nx = len(state.dens[:,0])
-        ny = len(state.dens[0,:])
+        nx = len(state.dens[:,0,0])
+        ny = len(state.dens[0,:,0])
 
         # Advection velocity
-        u = self.advection_velocity[2:nx-2,:]
+        u = self.advection_velocity[2:nx-2,:,:]
 
         # Distance to shift solution in x
         shiftx = dt*u
@@ -62,9 +63,10 @@ class LinearAdvection(ClawSolver):
         udtdx = shiftx/dx - Nshift
 
         # Views without ghost cells
-        dens = state.dens[2:nx-2,:]
-        momx = state.velx[2:nx-2,:]
-        momy = state.vely[2:nx-2,:]
+        dens = state.dens[2:nx-2,:,:]
+        momx = state.velx[2:nx-2,:,:]
+        momy = state.vely[2:nx-2,:,:]
+        momz = state.velz[2:nx-2,:,:]
 
         # Limited slopes for 2nd order correction
         slopedens = self.limiter(dens - np.roll(dens, 1, axis=0),
@@ -73,6 +75,8 @@ class LinearAdvection(ClawSolver):
                                  np.roll(momx, -1, axis=0) - momx, self.sb)
         slopemomy = self.limiter(momy - np.roll(momy, 1, axis=0),
                                  np.roll(momy, -1, axis=0) - momy, self.sb)
+        slopemomz = self.limiter(momz - np.roll(momz, 1, axis=0),
+                                 np.roll(momz, -1, axis=0) - momz, self.sb)
 
         # Upwind state
         s = np.sign(udtdx)
@@ -82,6 +86,8 @@ class LinearAdvection(ClawSolver):
             0.5*(s + 1.0)*np.roll(momx, 1, axis=0)
         momyu = -0.5*(s - 1.0)*np.roll(momy, -1, axis=0) + \
             0.5*(s + 1.0)*np.roll(momy, 1, axis=0)
+        momzu = -0.5*(s - 1.0)*np.roll(momz, -1, axis=0) + \
+            0.5*(s + 1.0)*np.roll(momz, 1, axis=0)
 
         # Upwind slopes
         slopedensu = -0.5*(s - 1.0)*np.roll(slopedens, -1, axis=0) + \
@@ -90,6 +96,8 @@ class LinearAdvection(ClawSolver):
             0.5*(s + 1.0)*np.roll(slopemomx, 1, axis=0)
         slopemomyu = -0.5*(s - 1.0)*np.roll(slopemomy, -1, axis=0) + \
             0.5*(s + 1.0)*np.roll(slopemomy, 1, axis=0)
+        slopemomzu = -0.5*(s - 1.0)*np.roll(slopemomz, -1, axis=0) + \
+            0.5*(s + 1.0)*np.roll(slopemomz, 1, axis=0)
 
         # Update state
         a = np.abs(udtdx);
@@ -99,14 +107,18 @@ class LinearAdvection(ClawSolver):
                  0.5*udtdx*(1.0 - a)*(slopemomx - slopemomxu))
         momy += (-a*(momy - momyu) - \
                  0.5*udtdx*(1.0 - a)*(slopemomy - slopemomyu))
+        momz += (-a*(momz - momzu) - \
+                 0.5*udtdx*(1.0 - a)*(slopemomz - slopemomzu))
 
         # Shift integer number of cells
         for i in range(ny):
             n = int(Nshift[0,i])
-            dens[:,i] = np.roll(dens[:,i], n)
-            momx[:,i] = np.roll(momx[:,i], n)
-            momy[:,i] = np.roll(momy[:,i], n)
+            dens[:,i,:] = np.roll(dens[:,i,:], n)
+            momx[:,i,:] = np.roll(momx[:,i,:], n)
+            momy[:,i,:] = np.roll(momy[:,i,:], n)
+            momz[:,i,:] = np.roll(momz[:,i,:], n)
 
         # Switch back to velocities
         state.velx /= state.dens
         state.vely /= state.dens
+        state.velz /= state.dens
