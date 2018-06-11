@@ -91,10 +91,6 @@ class Coordinates(object):
 
         # Step sizes
         dxy = [0.0, 0.0, 0.0]
-        # Step sizes (all x for now, do y and z later if necessary)
-        #dxy = [(domain[0][1] - domain[0][0])/np.float(dimensions[0]),
-        #       (domain[0][1] - domain[0][0])/np.float(dimensions[0]),
-        #       (domain[0][1] - domain[0][0])/np.float(dimensions[0])]
 
         # Add x if necessary
         if dimensions[0] > 1:
