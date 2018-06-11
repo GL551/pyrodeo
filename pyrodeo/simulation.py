@@ -18,7 +18,7 @@ class Simulation(object):
 
     Args:
         param (:class:`.Param`): Valid Param object, containing simulation parameters.
-        coords (:class:`.Coordinates`): Valid Coordinates object, containing x and y coordinates
+        coords (:class:`.Coordinates`): Valid Coordinates object, containing x, y and z coordinates
         state (:class:`.State`): Valid State object, containing current density, velocity and sound speed.
         t (float): Simulation time.
         direc (:obj:`str`, optional): Output directory.
@@ -30,7 +30,7 @@ class Simulation(object):
 
     Attributes:
         state (:class:`.State`): State object holding density, velocity and sound speed.
-        coords (:class:`.Coordinates`): Coordinates object holding x and y coordinates.
+        coords (:class:`.Coordinates`): Coordinates object holding x, y and z coordinates.
         param (:class:`.Param`): Param object holding simulation parameters.
         t (float): Current simulation time.
         direc (string): Output directory.
@@ -38,8 +38,14 @@ class Simulation(object):
     """
 
     def __init__(self, param, coords, state, t, direc='./'):
-        self.state = State(state.dens, state.velx, state.vely, state.soundspeed)
-        self.coords = Coordinates(coords.x, coords.y)
+        self.state = State(state.dens,
+                           state.velx,
+                           state.vely,
+                           state.velz,
+                           state.soundspeed)
+        self.coords = Coordinates(coords.x,
+                                  coords.y,
+                                  coords.z)
         self.param = Param(param)
         self.t = t
         self.direc = direc
@@ -47,8 +53,8 @@ class Simulation(object):
     @classmethod
     def from_geom(cls,
                   geometry,
-                  dimensions=(100, 1),
-                  domain=([-0.5, 0.5], []),
+                  dimensions=(100, 1, 1),
+                  domain=([-0.5, 0.5], [], []),
                   direc='./'):
         """Construct simulation from geometry.
 
@@ -56,8 +62,8 @@ class Simulation(object):
 
         Args:
             geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet), or 'cyl' (cylindrical coordinates).
-            dimensions (:obj:`(int,int)`,optional): Grid dimensions in x and y.
-            domain (:obj:`[(float,float),(float,float)]`,optional): Domain boundaries in x and y.
+            dimensions (:obj:`(int,int,int)`,optional): Grid dimensions in x, y and z.
+            domain (:obj:`[(float,float),(float,float),(float,float)]`,optional): Domain boundaries in x, y and z.
             direc (:obj:`str`,optional): Output directory, defaults to current directory.
 
         """
@@ -65,8 +71,9 @@ class Simulation(object):
 
         coords = Coordinates.from_dims(dimensions, domain)
 
-        state = State.from_dims((len(coords.x[:,0]),
-                                 len(coords.x[0,:])))
+        state = State.from_dims((len(coords.x[:,0,0]),
+                                 len(coords.x[0,:,0]),
+                                 len(coords.x[0,0,:])))
         t = 0.0
 
         return cls(param[0], coords, state, t, direc=direc)
@@ -90,6 +97,7 @@ class Simulation(object):
             gc = hf.get("coords")
             x = np.array(gc.get('x'))
             y = np.array(gc.get('y'))
+            z = np.array(gc.get('z'))
 
             param = hf.get("param")
 
@@ -97,10 +105,11 @@ class Simulation(object):
             dens = np.array(g.get('dens'))
             velx = np.array(g.get('velx'))
             vely = np.array(g.get('vely'))
+            velz = np.array(g.get('velz'))
             soundspeed = np.array(g.get('soundspeed'))
 
-            coords = Coordinates(x, y)
-            state = State(dens, velx, vely, soundspeed)
+            coords = Coordinates(x, y, z)
+            state = State(dens, velx, vely, velz, soundspeed)
 
             t = g.attrs['time']
             print("Restoring from checkpoint at t = {}".format(t))
@@ -162,6 +171,7 @@ class Simulation(object):
                 gc = hf.create_group("coords")
                 gc.create_dataset("x", data=self.coords.x)
                 gc.create_dataset("y", data=self.coords.y)
+                gc.create_dataset("z", data=self.coords.z)
 
                 param_dtype, param = self.param.to_list()
                 param_array = np.array(param, dtype=param_dtype)
@@ -179,4 +189,5 @@ class Simulation(object):
             g1.create_dataset("dens", data=self.state.dens)
             g1.create_dataset('velx', data=self.state.velx)
             g1.create_dataset('vely', data=self.state.vely)
+            g1.create_dataset('velz', data=self.state.velz)
             g1.create_dataset('soundspeed', data=self.state.soundspeed)
