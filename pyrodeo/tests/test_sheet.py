@@ -15,8 +15,8 @@ def test_sheet():
 
     # Create simulation, setting grid dimensions and domain
     sim = pyrodeo.Simulation.from_geom('sheet',
-                                       dimensions=[32, 64],
-                                       domain=([-Lx, Lx], [-Ly, Ly]))
+                                       dimensions=[32, 64, 1],
+                                       domain=([-Lx, Lx], [-Ly, Ly], []))
     sim.param.boundaries[0] = 'shear periodic'
     sim.param.boundaries[1] = 'periodic'
 

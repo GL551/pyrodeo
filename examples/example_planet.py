@@ -51,8 +51,8 @@ def planet_source(t, dt, coords, state, planetParam):
     state.vely += dt*source_vely*state.no_ghost
 
 sim = pyrodeo.Simulation.from_geom('cyl',
-                                   dimensions=[128, 384],
-                                   domain=([0.4, 2.5], [-np.pi, np.pi]))
+                                   dimensions=[128, 384, 1],
+                                   domain=([0.4, 2.5], [-np.pi, np.pi], []))
 
 # Sound speed constant H/r = 0.05
 sim.state.soundspeed = 0.05*sim.state.soundspeed/np.sqrt(sim.coords.x)

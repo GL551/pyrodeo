@@ -24,7 +24,7 @@ fig = plt.figure()
 # Show initial conditions (checkpoint 0)
 file_name = './rodeo.h5'
 dens = density_at_checkpoint(file_name, 0)
-im = plt.imshow(dens, animated=True)
+im = plt.imshow(dens[:,:,0], animated=True)
 
 # Get next checkpoint
 n = 0
@@ -32,7 +32,7 @@ def updatefig(*args):
     global n
 
     dens = density_at_checkpoint(file_name, n)
-    im.set_array(dens)
+    im.set_array(dens[:,:,0])
     n += 1
 
     return im,
