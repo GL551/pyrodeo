@@ -57,14 +57,21 @@ def planet_source(t, dt, coords, state, planetParam):
 
 def test_cyl():
     sim = pyrodeo.Simulation.from_geom('cyl',
-                                       dimensions=[128, 384],
-                                       domain=([0.4, 2.5], [-np.pi, np.pi]))
+                                       dimensions=[128, 384, 1],
+                                       domain=([0.4, 2.5],[-np.pi, np.pi],[]))
 
     # Sound speed constant H/r = 0.05
     sim.state.soundspeed = 0.05*sim.state.soundspeed/np.sqrt(sim.coords.x)
     sim.param.boundaries[0] = 'reflect'
     sim.param.boundaries[1] = 'periodic'
 
-    # Simulate a Jupiter planet up to 100 orbits
-    sim.evolve([0.05*2.0*np.pi],
+    # Simulate a Jupiter planet up to 0.01 orbits
+    sim.evolve([0.01*2.0*np.pi],
                planet_source, (0.001, 0.6*0.05), new_file=True)
+
+    # Axisymmetric (r,z)
+    sim = pyrodeo.Simulation.from_geom('cyl',
+                                       dimensions=[128, 1, 32],
+                                       domain=([0.4, 2.5],[],[-0.1,0.1]))
+
+    sim.evolve([0.01*2.0*np.pi], new_file=True)

@@ -15,8 +15,8 @@ def test_sheet():
 
     # Create simulation, setting grid dimensions and domain
     sim = pyrodeo.Simulation.from_geom('sheet',
-                                       dimensions=[32, 64],
-                                       domain=([-Lx, Lx], [-Ly, Ly]))
+                                       dimensions=[32, 64, 1],
+                                       domain=([-Lx, Lx], [-Ly, Ly], []))
     sim.param.boundaries[0] = 'shear periodic'
     sim.param.boundaries[1] = 'periodic'
 
@@ -33,3 +33,18 @@ def test_sheet():
 
     # Try restoring
     sim_restore = pyrodeo.Simulation.from_checkpoint('./')
+
+    # Test vertical
+    sim = pyrodeo.Simulation.from_geom('sheet',
+                                       dimensions=[1, 1, 128],
+                                       domain=([], [], [-2.0,2.0]))
+
+    sim.param.boundaries[0] = 'shear periodic'
+    sim.param.boundaries[1] = 'periodic'
+    sim.param.boundaries[2] = 'reflect'
+
+    sim.evolve([1.0], new_file=True)
+
+    # Restore and continue
+    sim_restore = pyrodeo.Simulation.from_checkpoint('./')
+    sim_restore.evolve([2.0])

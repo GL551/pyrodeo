@@ -14,7 +14,7 @@ class Param(object):
     """Create instance from list of parameters.
 
     Args:
-        param_list ([str, float, float, float, str, str]): List of parameters; geometry (string), courant (float), fluxlimiter (float), Omega (float), boundaries x (string) and boundaries y (string)
+        param_list ([str, float, float, float, str, str, str]): List of parameters; geometry (string), courant (float), fluxlimiter (float), frame_rotation (float), boundaries x (string), boundaries y (string) and boundaries z (string)
 
     Note:
         The validity of the parameters is not checked.
@@ -26,58 +26,64 @@ class Param(object):
         courant (float): Courant number, should be > 0 and < 1.
         limiter_param (float): Limiter parameter. Should be between 1 (minmod) and 2 (superbee).
         min_dens (float): Minimum density to switch to HLL solver to remain positive.
-        Omega (float): Frame rotation rate. Ignored in Cartesian coordinates, should be unity in a shearing sheet calculation and corresponds to the angular velocity of the coordinate frame in cylindrical coordinates.
-        boundaries (string, string): Boundary conditions in x and y: 'nonreflect', 'reflect', or 'periodic'.
+        frame_rotation (float): Frame rotation rate. Ignored in Cartesian coordinates, should be unity in a shearing sheet calculation and corresponds to the angular velocity of the coordinate frame in cylindrical coordinates.
+        boundaries (string, string, string): Boundary conditions in x y and z: 'nonreflect', 'reflect', or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
 
     """
 
     def __init__(self, param_list):
-        self.geometry      = param_list[0]
-        self.courant       = param_list[1]
-        self.limiter_param = param_list[2]
-        self.min_dens      = param_list[3]
-        self.Omega         = param_list[4]
-        self.boundaries    = [param_list[5], param_list[6]]
+        self.geometry       = param_list[0]
+        self.courant        = param_list[1]
+        self.limiter_param  = param_list[2]
+        self.min_dens       = param_list[3]
+        self.frame_rotation = param_list[4]
+        self.boundaries     = [param_list[5], param_list[6], param_list[7]]
 
     @classmethod
     def from_geom(cls,
                   geometry,
-                  boundaries=['reflect', 'reflect']):
+                  boundaries=['reflect', 'reflect', 'reflect']):
         """Initialization from geometry and boundary conditions.
 
         Construct Parameter object from geometry and boundary conditions. All other parameters are set to standard values. Check if geometry and boundary conditions are valid.
 
         Args:
             geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet) or 'cyl' (cylindrical coordinates).
-            boundaries (string, string): boundary conditions; 'reflect', 'nonreflect' or 'periodic'
+            boundaries (string, string, string): boundary conditions; 'reflect', 'nonreflect' or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
 
         """
         courant = 0.4
         limiter_param = 1.0
         min_dens = 1.0e-6
-        Omega = 1.0
+        frame_rotation = 1.0
         if (geometry != 'cart' and
             geometry != 'sheet' and
             geometry != 'cyl'):
             raise ValueError('Invalid geometry')
-        if len(boundaries) != 2:
-            raise TypeError('Expected boundaries to have two elements')
+        if len(boundaries) != 3:
+            raise TypeError('Expected boundaries to have three elements')
         if (boundaries[0] != 'reflect' and
             boundaries[0] != 'nonreflect' and
-            boundaries[0] != 'periodic'):
+            boundaries[0] != 'periodic' and
+            boundaries[0] != 'shear periodic'):
             raise ValueError('Invalid x boundary')
         if (boundaries[1] != 'reflect' and
             boundaries[1] != 'nonreflect' and
             boundaries[1] != 'periodic'):
             raise ValueError('Invalid y boundary')
+        if (boundaries[2] != 'reflect' and
+            boundaries[2] != 'nonreflect' and
+            boundaries[2] != 'periodic'):
+            raise ValueError('Invalid z boundary')
 
         return cls([geometry,
                     courant,
                     limiter_param,
                     min_dens,
-                    Omega,
+                    frame_rotation,
                     boundaries[0],
-                    boundaries[1]])
+                    boundaries[1],
+                    boundaries[2]])
 
     def to_list(self):
         """Convert parameters to list.
@@ -92,14 +98,16 @@ class Param(object):
                                 ('courant', np.float),
                                 ('limiter_param', np.float),
                                 ('min_dens', np.float),
-                                ('Omega', np.float),
+                                ('frame_rotation', np.float),
                                 ('boundary_x', h5py.special_dtype(vlen=str)),
-                                ('boundary_y', h5py.special_dtype(vlen=str))])
+                                ('boundary_y', h5py.special_dtype(vlen=str)),
+                                ('boundary_z', h5py.special_dtype(vlen=str))])
 
         return param_dtype, [(self.geometry,
                               self.courant,
                               self.limiter_param,
                               self.min_dens,
-                              self.Omega,
+                              self.frame_rotation,
                               self.boundaries[0],
-                              self.boundaries[1])]
+                              self.boundaries[1],
+                              self.boundaries[2])]

@@ -16,7 +16,7 @@ class Hydro:
 
     Args:
         param (:class:`.Param`): Valid Param object, containing simulation parameters.
-        coords (:class:`.Coordinates`): Valid Coordinates object, containing x and y coordinates. Used to calculate orbital advection velocity.
+        coords (:class:`.Coordinates`): Valid Coordinates object, containing x, y and z coordinates. Used to calculate orbital advection velocity.
 
     The following attributes and methods are available:
 
@@ -28,9 +28,10 @@ class Hydro:
     def __init__(self, param, coords):
         v_adv = 0.0*coords.x
         if param.geometry == 'sheet':
-            v_adv = (-1.5*coords.x).transpose()
+            v_adv = (-1.5*coords.x).transpose((1,0,2))
         if param.geometry == 'cyl':
-            v_adv = (np.power(coords.x, -1.5) - param.Omega).transpose()
+            v_adv = (np.power(coords.x, -1.5) -
+                     param.frame_rotation).transpose((1,0,2))
         self.orbital_advection = LinearAdvection(v_adv, param.limiter_param)
         self.roe = Roe(param.limiter_param, param.min_dens)
 
@@ -39,22 +40,29 @@ class Hydro:
 
         Args:
             geometry (str): 'cart', 'sheet' or 'cyl'.
-            coords (:class:`.Coordinates`): Valid :class:`.Coordinates` object, containing x and y coordinates.
+            coords (:class:`.Coordinates`): Valid :class:`.Coordinates` object, containing x, y and z coordinates.
             state (:class:`.State`): Valid :class:`.State` object, containing density and velocity.
 
         Returns:
             float: Maximum time step obeying the CFL condition.
 
         """
-        dtx = coords.dxy[0]/np.max(np.abs(state.velx) + state.soundspeed)
+        cs = state.soundspeed
+
+        dtx = 1.0e10
         dty = dtx
-        if len(state.dens[0,:]) > 1:
-            cs = state.soundspeed
+        dtz = dtx
+        if len(state.dens[:,0,0]) > 1:
+            dtx = coords.dxyz[0]/np.max(np.abs(state.velx) + cs)
+        if len(state.dens[0,:,0]) > 1:
             if geometry == 'cyl':
                 cs = state.soundspeed/coords.x
-            dty = coords.dxy[1]/np.max(np.abs(state.vely) + cs)
+            dty = coords.dxyz[1]/np.max(np.abs(state.vely) + cs)
 
-        return np.min([dtx, dty])
+        if len(state.dens[0,0,:]) > 1:
+            dtz = coords.dxyz[2]/np.max(np.abs(state.velz) + cs)
+
+        return np.min([dtx, dty, dtz])
 
     def shear_periodic_boundaries(self, t, coords, state):
         """Set shear-periodic boundary conditions.
@@ -66,34 +74,40 @@ class Hydro:
             coords (:class:`.Coordinates`): Valid :class:`.Coordinates` object, containing x and y coordinates.
             state (:class:`.State`): Valid :class:`.State` object, containing density and velocity.
         """
-        nx = np.shape(state.dens)[0]
+        # Single cell in x; nothing to do
+        if len(state.dens[:,0,0]) <= 1:
+            return
 
         # Create State made just of ghost zones
-        dens = np.concatenate((state.dens[nx-4:nx-2,:], state.dens[2:4,:]))
-        velx = np.concatenate((state.velx[nx-4:nx-2,:], state.velx[2:4,:]))
-        vely = np.concatenate((state.vely[nx-4:nx-2,:], state.vely[2:4,:]))
-        temp_state = State(dens, velx, vely, vely)
+        dens = np.concatenate((state.dens[-4:-2,:,:], state.dens[2:4,:,:]))
+        velx = np.concatenate((state.velx[-4:-2,:,:], state.velx[2:4,:,:]))
+        vely = np.concatenate((state.vely[-4:-2,:,:], state.vely[2:4,:,:]))
+        velz = np.concatenate((state.velz[-4:-2,:,:], state.velz[2:4,:,:]))
+        temp_state = State(dens, velx, vely, velz, velz)
 
         # Advection velocity is speed of next box
-        v_adv = 0.0*dens + 1.5*(coords.x[nx-2,0] + coords.x[nx-3,0])
-        v_adv[2:4,:] = -v_adv[2:4,:]
+        v_adv = 0.0*dens + 1.5*(coords.x[-2:-1,0,0] + coords.x[-3:-2,0,0])
+        v_adv[2:4,:] = -v_adv[2:4,:,:]
 
         # Linear advection since t = 0 when solution was periodic
-        temp_state.transpose()
-        v_adv = v_adv.transpose()
+        temp_state.transpose((1,0,2))
+        v_adv = v_adv.transpose((1,0,2))
 
         la = LinearAdvection(v_adv, self.orbital_advection.sb)
-        la.step(t, coords.dxy[1], temp_state)
+        la.step(t, coords.dxyz[1], temp_state)
 
-        temp_state.transpose()
+        temp_state.transpose((1,0,2))
 
         # Store in ghost zones
-        state.dens[:2,:] = temp_state.dens[:2,:]
-        state.velx[:2,:] = temp_state.velx[:2,:]
-        state.vely[:2,:] = temp_state.vely[:2,:]
-        state.dens[nx-2:,:] = temp_state.dens[2:,:]
-        state.velx[nx-2:,:] = temp_state.velx[2:,:]
-        state.vely[nx-2:,:] = temp_state.vely[2:,:]
+        state.dens[:2,:,:]  = temp_state.dens[:2,:,:]
+        state.velx[:2,:,:]  = temp_state.velx[:2,:,:]
+        state.vely[:2,:,:]  = temp_state.vely[:2,:,:]
+        state.velz[:2,:,:]  = temp_state.velz[:2,:,:]
+
+        state.dens[-2:,:,:] = temp_state.dens[2:,:,:]
+        state.velx[-2:,:,:] = temp_state.velx[2:,:,:]
+        state.vely[-2:,:,:] = temp_state.vely[2:,:,:]
+        state.velz[-2:,:,:] = temp_state.velz[2:,:,:]
 
     def preprocess(self, coords, param, state, direction):
         """Modify state to quasi-cartesian form and calculate geometric source terms.
@@ -114,25 +128,41 @@ class Hydro:
 
         if param.geometry == 'sheet':
             if direction == 0:
-                state.vely += 0.5*param.Omega*coords.x
-                source = 2.0*state.dens*param.Omega*(state.vely -
-                                                     0.5*param.Omega*coords.x)
+                state.vely += 0.5*param.frame_rotation*coords.x
+                source = 2.0*state.dens*param.frame_rotation*\
+                  (state.vely - 0.5*param.frame_rotation*coords.x)
+            if direction == 2:
+                source = -state.dens*param.frame_rotation*\
+                  param.frame_rotation*coords.z
+
         if param.geometry == 'cyl':
             if direction == 0:
                 state.dens *= coords.x
                 state.vely = coords.x*coords.x*(state.vely +
                                                 np.power(coords.x, -1.5))
+                dpot = coords.x*np.power(coords.x*coords.x +
+                                         coords.z*coords.z, -1.5)
                 source = \
-                    (state.vely*state.vely/coords.x -
-                     1.0)*state.dens/(coords.x*coords.x) + \
+                    state.dens*state.vely*state.vely/ \
+                    (coords.x*coords.x*coords.x) - \
+                    state.dens*dpot + \
                 state.soundspeed*state.soundspeed*state.dens/coords.x
             if direction == 1:
                 state.soundspeed /= coords.x
+            if direction == 2:
+                dpot = coords.z*np.power(coords.x*coords.x +
+                                         coords.z*coords.z, -1.5)
+                source = -state.dens*dpot
 
         if direction == 1:
-            source = source.transpose()
-            state.transpose()
-            state.swap_velocities()
+            source = source.transpose((1,0,2))
+            state.transpose((1,0,2))
+            state.swap_velocities(1)
+
+        if direction == 2:
+            source = source.transpose((2,1,0))
+            state.transpose((2,1,0))
+            state.swap_velocities(2)
 
         return source
 
@@ -149,12 +179,16 @@ class Hydro:
 
         """
         if direction == 1:
-            state.transpose()
-            state.swap_velocities()
+            state.transpose((1,0,2))
+            state.swap_velocities(1)
+
+        if direction == 2:
+            state.transpose((2,1,0))
+            state.swap_velocities(2)
 
         if param.geometry == 'sheet':
             if direction == 0:
-                state.vely -= 0.5*param.Omega*coords.x
+                state.vely -= 0.5*param.frame_rotation*coords.x
 
         if param.geometry == 'cyl':
             if direction == 0:
@@ -163,14 +197,6 @@ class Hydro:
                 np.power(coords.x, -1.5)
             if direction == 1:
                 state.soundspeed *= coords.x
-
-        if np.min(state.dens) < 0.0:
-            i = np.unravel_index(np.argmin(state.dens, axis=None),
-                                 state.dens.shape)
-            print("Negative density encountered after integrating" +
-                  " direction {} at x = {}, y = {}".format(direction,
-                                                           coords.x[i],
-                                                           coords.y[i]))
 
     def evolve(self, t, t_max, coords, param, state,
                source_func, source_param):
@@ -216,18 +242,18 @@ class Hydro:
                     self.shear_periodic_boundaries(t, coords, state)
 
                 # Dimensional split: do all dimensions independently
-                for dim in (0,1):
+                for dim in (0,1,2):
                     if np.shape(state.dens)[dim] > 1:
                         source = self.preprocess(coords, param, state, dim)
 
                         # Hydrodynamic update
-                        self.roe.step(dt, coords.dxy[dim], state,
+                        self.roe.step(dt, coords.dxyz[dim], state,
                                       source, param.boundaries[dim])
 
                         # Orbital advection
                         if dim == 1:
                             self.orbital_advection.step(dt,
-                                                        coords.dxy[dim],
+                                                        coords.dxyz[dim],
                                                         state)
 
                         self.postprocess(coords, param, state, dim)
@@ -244,11 +270,6 @@ class Hydro:
 
             # Integrate extra source terms (ignoring ghost zones!)
             if source_func is not None:
-                #sdens, svelx, svely = \
-                #  source_func(t, coords, state, source_param)
-                #state.dens += dt*sdens*state.no_ghost
-                #state.velx += dt*svelx*state.no_ghost
-                #state.vely += dt*svely*state.no_ghost
                 source_func(t, dt, coords, state, source_param)
 
             # Update simulation time

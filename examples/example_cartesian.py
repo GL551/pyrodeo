@@ -17,5 +17,5 @@ sim.state.dens[sel] = 0.1
 sim.evolve([0.25], new_file=True)
 
 # Plot results
-plt.plot(sim.coords.x, sim.state.dens)
+plt.plot(sim.coords.x[:,0,0], sim.state.dens[:,0,0])
 plt.show()

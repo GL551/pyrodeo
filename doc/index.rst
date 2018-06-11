@@ -47,7 +47,7 @@ interesting examples, see :ref:`Examples`.
 Equations solved
 -------------------------------------
 
-The current version supports inviscid isothermal hydrodynamics in two spatial
+The current version supports inviscid isothermal hydrodynamics in three spatial
 dimensions. Isothermal means the pressure :math:`p` is related to the
 density :math:`\rho` simply through :math:`p=c^2\rho`, where the sound
 speed :math:`c` is either a constant (fully isothermal) or a
@@ -63,21 +63,29 @@ In Cartesian coordinates, we have the continuity equation:
 .. math::
 
     \frac{\partial\rho}{\partial t} + \frac{\partial}{\partial x}(\rho
-    v_x) + \frac{\partial}{\partial y}(\rho v_y)=0
+    v_x) + \frac{\partial}{\partial y}(\rho v_y) + \frac{\partial}{\partial z}(\rho v_z)=0
 
 Momentum in x-direction:
 
 .. math::
 
     \frac{\partial}{\partial t}(\rho v_x) + \frac{\partial}{\partial x}(\rho
-    v_x^2 + c^2\rho) + \frac{\partial}{\partial y}(\rho v_x v_y)=0
+    v_x^2 + c^2\rho) + \frac{\partial}{\partial y}(\rho v_x v_y) + \frac{\partial}{\partial z}(\rho v_x v_z)=0
 
 Momentum in y-direction:
 
 .. math::
 
     \frac{\partial}{\partial t}(\rho v_y) + \frac{\partial}{\partial x}(\rho
-    v_x v_y) + \frac{\partial}{\partial y}(\rho v_y^2 + c^2\rho)=0
+    v_x v_y) + \frac{\partial}{\partial y}(\rho v_y^2 + c^2\rho) + \frac{\partial}{\partial z}(\rho
+    v_y v_z)=0
+
+Momentum in z-direction:
+
+.. math::
+
+    \frac{\partial}{\partial t}(\rho v_z) + \frac{\partial}{\partial x}(\rho
+    v_x v_z) + \frac{\partial}{\partial y}(\rho v_y v_z)+ \frac{\partial}{\partial z}(\rho v_z^2 + c^2\rho) =0
 
 Shearing Sheet
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,7 +103,7 @@ the continuity equation:
 .. math::
 
     \frac{\partial\rho}{\partial t} + \frac{\partial}{\partial x}(\rho
-    v_x) + \frac{\partial}{\partial y}(\rho v_y)=0
+    v_x) + \frac{\partial}{\partial y}(\rho v_y) + \frac{\partial}{\partial z}(\rho v_z)=0
 
 The x-momentum equation now includes source terms on the right-hand side:
 
@@ -103,7 +111,7 @@ The x-momentum equation now includes source terms on the right-hand side:
 
     \frac{\partial}{\partial t}(\rho v_x) + \frac{\partial}{\partial x}(\rho
     v_x^2 + c^2\rho) + \frac{\partial}{\partial y}(\rho v_x
-    v_y)=2\Omega\rho v_y + 3\rho\Omega^2 x
+    v_y) + \frac{\partial}{\partial z}(\rho v_x v_z)=2\Omega\rho v_y + 3\rho\Omega^2 x
 
 Same for the momentum equation in y-direction:
 
@@ -111,8 +119,17 @@ Same for the momentum equation in y-direction:
 
     \frac{\partial}{\partial t}(\rho v_y) + \frac{\partial}{\partial x}(\rho
     v_x v_y) + \frac{\partial}{\partial y}(\rho v_y^2 +
-    c^2\rho)=-2\Omega\rho v_x
+    c^2\rho) + \frac{\partial}{\partial z}(\rho
+    v_y v_z)=-2\Omega\rho v_x
 
+In the z-direction we get a source term due to the vertical component
+of the stellar gravity:
+
+.. math::
+
+    \frac{\partial}{\partial t}(\rho v_z) + \frac{\partial}{\partial x}(\rho
+    v_x v_z) + \frac{\partial}{\partial y}(\rho v_y v_z)+
+    \frac{\partial}{\partial z}(\rho v_z^2 + c^2\rho) =-\rho \Omega^2 z
 
 .. NOTE::
    In the shearing sheet the sound speed should really be constant (no
@@ -133,7 +150,7 @@ worry about. The continuity equation now reads:
 .. math::
 
     \frac{\partial}{\partial t}(r\rho) + \frac{\partial}{\partial r}(r\rho
-    v_r) + \frac{\partial}{\partial \varphi}(r\rho v_\varphi)=0
+    v_r) + \frac{\partial}{\partial \varphi}(r\rho v_\varphi) + \frac{\partial}{\partial z}(r\rho v_z)=0
 
 Note that :math:`v_\varphi` is an angular velocity. The radial
 momentum equation now includes source terms representing centrifugal
@@ -143,8 +160,8 @@ term:
 .. math::
 
     \frac{\partial}{\partial t}(r\rho v_r) + \frac{\partial}{\partial r}(r\rho
-    v_r^2 + c^2r\rho) + \frac{\partial}{\partial \varphi}(\rho v_r
-    v_\varphi)= r^2\rho v_\varphi^2 - \rho\frac{GM_*}{r} + c^2\rho
+    v_r^2 + c^2r\rho) + \frac{\partial}{\partial \varphi}(r\rho v_r
+    v_\varphi)+\frac{\partial}{\partial z}(r\rho v_r v_z)= r^2\rho v_\varphi^2 - r^2\rho\frac{GM_*}{(r^2+z^2)^{3/2}} + c^2\rho
 
 In the :math:`\varphi` direction we get a Coriolis source term:
 
@@ -152,7 +169,16 @@ In the :math:`\varphi` direction we get a Coriolis source term:
 
     \frac{\partial}{\partial t}(r\rho v_\varphi) + \frac{\partial}{\partial r}(r\rho
     v_r v_\varphi) + \frac{\partial}{\partial \varphi}(r\rho v_\varphi^2 +
-    c^2\rho/r)=-2\rho v_r v_\varphi
+    c^2\rho/r) +\frac{\partial}{\partial z}(r\rho v_\varphi v_z)=-2\rho v_r v_\varphi
+
+In the vertical direction we again have the vertical component of the
+stellar gravity:
+
+.. math::
+
+    \frac{\partial}{\partial t}(r\rho v_z) + \frac{\partial}{\partial r}(r\rho
+    v_r v_z) + \frac{\partial}{\partial \varphi}(r\rho v_\varphi v_z)+
+    \frac{\partial}{\partial z}(r\rho v_z^2 + c^2r\rho) = -r\rho z\frac{GM_*}{(r^2+z^2)^{3/2}}
 
 .. NOTE::
    The unit of mass is taken to be the mass of the central object. The
@@ -196,27 +222,33 @@ equations into the following form:
     \frac{\partial}{\partial t}(\bar\rho \bar v_y) +
     \frac{\partial}{\partial \bar x}(\bar\rho\bar v_x \bar v_y) =0
 
+.. math::
+
+    \frac{\partial}{\partial t}(\bar\rho \bar v_z) +
+    \frac{\partial}{\partial \bar x}(\bar\rho\bar v_x \bar v_z) =0
+
 For the Cartesian setup, we simply have
 
 .. math::
 
-   \bar\rho =\rho, \bar v_x = v_x, \bar v_y = v_y, \bar c = c, \bar x
-   = x, \bar y = y, S_x = 0
+   \bar\rho =\rho, \bar v_x = v_x, \bar v_y = v_y, \bar v_z = v_z, \bar c = c, \bar x
+   = x, \bar y = y, \bar z = z, S_x = 0
 
 For the shearing sheet, we need
 
 .. math::
 
-   \bar\rho =\rho, \bar v_x = v_x, \bar v_y = v_y - \Omega x/2, \bar c = c, \bar x
-   = x, \bar y = y, S_x = 2\Omega \rho (v_y +3\Omega x/2)
+   \bar\rho =\rho, \bar v_x = v_x, \bar v_y = v_y - \Omega x/2, \bar v_z = v_z, \bar c = c, \bar x
+   = x, \bar y = y, \bar z = z , S_x = 2\Omega \rho (v_y +3\Omega x/2)
 
 Finally, in cylindrical coordinates we need
 
 .. math::
 
-   \bar\rho =r\rho, \bar v_x = v_r, \bar v_y = r^2v_\varphi, \bar c = c, \bar x
-   = r, \bar y = \varphi, S_x = r^2\rho v_\varphi^2 -
-   \rho\frac{GM_*}{r} + c^2\rho
+   \bar\rho =r\rho, \bar v_x = v_r, \bar v_y = r^2v_\varphi, \bar v_z
+   = v_z, \bar c = c, \bar x
+   = r, \bar y = \varphi, \bar z = z , S_x = r^2\rho v_\varphi^2 -
+   \frac{r^2\rho GM_*}{(r^2+z^2)^{3/2}} + c^2\rho
 
 For the y-integration (neglecting x-derivatives) we can cast the
 equations in the form:
@@ -237,23 +269,66 @@ equations in the form:
     \frac{\partial}{\partial \bar y}(\bar\rho
     \bar v_y^2 + \bar c^2\bar \rho) = S_y
 
+.. math::
+
+    \frac{\partial}{\partial t}(\bar\rho \bar v_z) +
+    \frac{\partial}{\partial \bar y}(\bar\rho\bar v_y \bar v_z) =0
+
 For both the Cartesian setup and the shearing sheet, we simply have
 
 .. math::
 
-   \bar\rho =\rho, \bar v_x = v_x, \bar v_y = v_y, \bar c = c, \bar x
-   = x, \bar y = y, S_y = 0
+   \bar\rho =\rho, \bar v_x = v_x, \bar v_y = v_y, \bar v_z = v_z, \bar c = c, \bar x
+   = x, \bar y = y, \bar z = z, S_y = 0
 
 In cylindrical coordinates we need
 
 .. math::
 
-   \bar\rho =\rho, \bar v_x = v_r, \bar v_y = v_\varphi, \bar c = c/r, \bar x
-   = r, \bar y = \varphi, S_y = 0
+   \bar\rho =\rho, \bar v_x = v_r, \bar v_y = v_\varphi, \bar v_z =
+   v_z, \bar c = c/r, \bar x = r, \bar y = \varphi, \bar z = z, S_y = 0
 
-Note that the resulting equations are very symmetric in x and y: if we
+Finally, for the z integration we can cast the equations in the form:
+
+.. math::
+
+    \frac{\partial\bar\rho}{\partial t} + \frac{\partial}{\partial
+    \bar z}(\bar\rho\bar v_z) = 0
+
+.. math::
+
+    \frac{\partial}{\partial t}(\bar\rho \bar v_x) +
+    \frac{\partial}{\partial \bar y}(\bar\rho\bar v_x \bar v_z) =0
+
+.. math::
+
+    \frac{\partial}{\partial t}(\bar\rho \bar v_y) +
+    \frac{\partial}{\partial \bar z}(\bar\rho\bar v_y \bar v_z) =0
+
+.. math::
+
+    \frac{\partial}{\partial t}(\bar\rho \bar v_z) +
+    \frac{\partial}{\partial \bar z}(\bar\rho
+    \bar v_z^2 + \bar c^2\bar \rho) = S_z
+
+For both the Cartesian setup and the shearing sheet, we simply have
+
+.. math::
+
+   \bar\rho =\rho, \bar v_x = v_x, \bar v_y = v_y, \bar v_z = v_z, \bar c = c, \bar x
+   = x, \bar y = y, \bar z = z, S_z = -\rho\Omega^2 z
+
+In cylindrical coordinates we need
+
+.. math::
+
+   \bar\rho =\rho, \bar v_x = v_r, \bar v_y = v_\varphi, \bar v_z =
+   v_z, \bar c = c, \bar x = r, \bar y = \varphi, \bar z = z, S_z =-\rho z\frac{GM_*}{(r^2+z^2)^{3/2}}
+
+Note that the resulting equations are very symmetric in x, y and z: if we
 swap x and y in the y integration the equations have exactly the same
-form as for the x integration. Therefore, if we prepare all quantities
+form as for the x integration. Similar for the z integration when
+swapping z and x. Therefore, if we prepare all quantities
 appropriately, we only need a single hydrodynamic solver that is able
 to advance the system
 
