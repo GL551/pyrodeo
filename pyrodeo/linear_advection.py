@@ -42,14 +42,18 @@ class LinearAdvection(ClawSolver):
             state (State): :class:`.State` containing density and velocity
 
         """
+        # Length of state in x and y
+        nx = len(state.dens[:,0,0])
+        ny = len(state.dens[0,:,0])
+
+        # Case of single cell in x
+        if nx == 1:
+            return
+
         # Work with momenta
         state.velx = state.velx*state.dens
         state.vely = state.vely*state.dens
         state.velz = state.velz*state.dens
-
-        # Length of state in x and y
-        nx = len(state.dens[:,0,0])
-        ny = len(state.dens[0,:,0])
 
         # Advection velocity
         u = self.advection_velocity[2:nx-2,:,:]
@@ -112,7 +116,7 @@ class LinearAdvection(ClawSolver):
 
         # Shift integer number of cells
         for i in range(ny):
-            n = int(Nshift[0,i])
+            n = int(Nshift[0,i,0])
             dens[:,i,:] = np.roll(dens[:,i,:], n)
             momx[:,i,:] = np.roll(momx[:,i,:], n)
             momy[:,i,:] = np.roll(momy[:,i,:], n)
