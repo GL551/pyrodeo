@@ -37,8 +37,7 @@ class Simulation(object):
 
     """
 
-    def __init__(self, param, coords, state, t,
-                 log_radial = False, direc='./'):
+    def __init__(self, param, coords, state, t, direc='./'):
         self.state = State(state.dens,
                            state.velx,
                            state.vely,
@@ -46,10 +45,8 @@ class Simulation(object):
                            state.soundspeed)
         self.coords = Coordinates(coords.x,
                                   coords.y,
-                                  coords.z)
-        # Make sure x corresponds to radius
-        if log_radial is True:
-            self.coords.x = np.exp(self.coords.x)
+                                  coords.z,
+                                  log_radial=coords.log_radial)
 
         self.param = Param(param)
         self.t = t
@@ -60,7 +57,7 @@ class Simulation(object):
                   geometry,
                   dimensions=(100, 1, 1),
                   domain=([-0.5, 0.5], [], []),
-                  log_radial = False,
+                  log_radial=False,
                   direc='./'):
         """Construct simulation from geometry.
 
@@ -76,20 +73,15 @@ class Simulation(object):
         """
         dt, param = Param.from_geom(geometry, log_radial).to_list()
 
-        # Convert radial boundaries to logarithmic
-        if log_radial is True:
-            domain[0][0] = np.log(domain[0][0])
-            domain[0][1] = np.log(domain[0][1])
-
-        coords = Coordinates.from_dims(dimensions, domain)
+        coords = Coordinates.from_dims(dimensions, domain,
+                                       log_radial=log_radial)
 
         state = State.from_dims((len(coords.x[:,0,0]),
                                  len(coords.x[0,:,0]),
                                  len(coords.x[0,0,:])))
         t = 0.0
 
-        return cls(param[0], coords, state, t,
-                   log_radial=log_radial, direc=direc)
+        return cls(param[0], coords, state, t, direc=direc)
 
     @classmethod
     def from_checkpoint(cls, direc, n=None):
@@ -121,11 +113,7 @@ class Simulation(object):
             velz = np.array(g.get('velz'))
             soundspeed = np.array(g.get('soundspeed'))
 
-            # Make logarithmic radial coordinate
-            if param['log_radial'] is True:
-                x = np.log(x)
-
-            coords = Coordinates(x, y, z)
+            coords = Coordinates(x, y, z, log_radial=param[0]['log_radial'])
 
             state = State(dens, velx, vely, velz, soundspeed)
 
