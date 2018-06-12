@@ -92,7 +92,7 @@ Shearing Sheet
 
 The Shearing Sheet is essentially a Cartesian model of a small patch
 in an astrophysical disc. This patch is rotating at the local
-Keplerian angular velocity :math:`Omega`, which means that Coriolis
+Keplerian angular velocity :math:`\Omega`, which means that Coriolis
 and centrifugal-type forces need to be included on the right-hand side
 of the equations. On the other hand, the patch is assumed to be small
 enough so that a local Cartesian frame can be used in stead of

@@ -27,7 +27,7 @@ Features
   Riemann solver.
 * Second order in space and time in regions of smooth flow.
 * Different geometries: Cartesian, Shearing Sheet, cylindrical
-  coordinates andspherical coordinates.
+  coordinates and spherical coordinates.
 * HDF5 output
 
 Quick start
@@ -58,7 +58,12 @@ http://pyrodeo.readthedocs.org
 Changelog
 =========
 
-Version 0.0.7
+Version 0.0.8
+--------------
+
+* Small fixes in tests and documentation
+
+ Version 0.0.7
 --------------
 
 * 3D isothermal
