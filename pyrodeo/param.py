@@ -27,6 +27,7 @@ class Param(object):
         limiter_param (float): Limiter parameter. Should be between 1 (minmod) and 2 (superbee).
         min_dens (float): Minimum density to switch to HLL solver to remain positive.
         frame_rotation (float): Frame rotation rate. Ignored in Cartesian coordinates, should be unity in a shearing sheet calculation and corresponds to the angular velocity of the coordinate frame in cylindrical coordinates.
+        log_radial (bool): Flag whether to use logarithmic radial coordinates in cylindrical geometry.
         boundaries (string, string, string): Boundary conditions in x y and z: 'nonreflect', 'reflect', or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
 
     """
@@ -37,11 +38,13 @@ class Param(object):
         self.limiter_param  = param_list[2]
         self.min_dens       = param_list[3]
         self.frame_rotation = param_list[4]
-        self.boundaries     = [param_list[5], param_list[6], param_list[7]]
+        self.log_radial     = param_list[5]
+        self.boundaries     = [param_list[6], param_list[7], param_list[8]]
 
     @classmethod
     def from_geom(cls,
                   geometry,
+                  log_radial=False,
                   boundaries=['reflect', 'reflect', 'reflect']):
         """Initialization from geometry and boundary conditions.
 
@@ -60,6 +63,8 @@ class Param(object):
             geometry != 'sheet' and
             geometry != 'cyl'):
             raise ValueError('Invalid geometry')
+        if (log_radial is True and geometry != 'cyl'):
+            raise ValueError('Can only use logarithmic in cylindrical coordinates')
         if len(boundaries) != 3:
             raise TypeError('Expected boundaries to have three elements')
         if (boundaries[0] != 'reflect' and
@@ -81,6 +86,7 @@ class Param(object):
                     limiter_param,
                     min_dens,
                     frame_rotation,
+                    log_radial,
                     boundaries[0],
                     boundaries[1],
                     boundaries[2]])
@@ -99,6 +105,7 @@ class Param(object):
                                 ('limiter_param', np.float),
                                 ('min_dens', np.float),
                                 ('frame_rotation', np.float),
+                                ('log_radial', np.bool),
                                 ('boundary_x', h5py.special_dtype(vlen=str)),
                                 ('boundary_y', h5py.special_dtype(vlen=str)),
                                 ('boundary_z', h5py.special_dtype(vlen=str))])
@@ -108,6 +115,7 @@ class Param(object):
                               self.limiter_param,
                               self.min_dens,
                               self.frame_rotation,
+                              self.log_radial,
                               self.boundaries[0],
                               self.boundaries[1],
                               self.boundaries[2])]
