@@ -35,13 +35,14 @@ class Hydro:
         self.orbital_advection = LinearAdvection(v_adv, param.limiter_param)
         self.roe = Roe(param.limiter_param, param.min_dens)
 
-    def calc_time_step(self, geometry, coords, state):
+    def calc_time_step(self, geometry, coords, state, log_radial=False):
         """Calculate time step obeying the CFL condition.
 
         Args:
             geometry (str): 'cart', 'sheet' or 'cyl'.
             coords (:class:`.Coordinates`): Valid :class:`.Coordinates` object, containing x, y and z coordinates.
             state (:class:`.State`): Valid :class:`.State` object, containing density and velocity.
+            log_radial (:obj:`bool`, optional): Flag indicating whether a logarithmic radial coordinate is used
 
         Returns:
             float: Maximum time step obeying the CFL condition.
@@ -53,14 +54,22 @@ class Hydro:
         dty = dtx
         dtz = dtx
         if len(state.dens[:,0,0]) > 1:
-            dtx = coords.dxyz[0]/np.max(np.abs(state.velx) + cs)
+            abs_speed = np.abs(state.velx) + cs
+            if log_radial is True:
+                abs_speed /= coords.x
+            dtx = coords.dxyz[0]/np.max(abs_speed)
+
         if len(state.dens[0,:,0]) > 1:
+            abs_speed = np.abs(state.vely) + cs
             if geometry == 'cyl':
-                cs = state.soundspeed/coords.x
-            dty = coords.dxyz[1]/np.max(np.abs(state.vely) + cs)
+                abs_speed /= coords.x
+            dty = coords.dxyz[1]/np.max(abs_speed)
 
         if len(state.dens[0,0,:]) > 1:
-            dtz = coords.dxyz[2]/np.max(np.abs(state.velz) + cs)
+            abs_speed = np.abs(state.velz) + cs
+            #if geometry == 'sph':
+            #    abs_speed /= coords.x
+            dtz = coords.dxyz[2]/np.max(abs_speed)
 
         return np.min([dtx, dty, dtz])
 
@@ -138,8 +147,7 @@ class Hydro:
         if param.geometry == 'cyl':
             if direction == 0:
                 state.dens *= coords.x
-                state.vely = coords.x*coords.x*(state.vely +
-                                                np.power(coords.x, -1.5))
+                state.vely = coords.x*state.vely + np.sqrt(coords.x)
                 dpot = coords.x*np.power(coords.x*coords.x +
                                          coords.z*coords.z, -1.5)
                 source = \
@@ -147,7 +155,14 @@ class Hydro:
                     (coords.x*coords.x*coords.x) - \
                     state.dens*dpot + \
                 state.soundspeed*state.soundspeed*state.dens/coords.x
+                if param.log_radial is True:
+                    state.velx = state.velx/coords.x
+                    state.dens *= coords.x
+                    state.soundspeed /= coords.x
+                    source = source - state.dens*state.velx*state.velx - \
+                      state.soundspeed*state.soundspeed*state.dens
             if direction == 1:
+                state.vely /= coords.x
                 state.soundspeed /= coords.x
             if direction == 2:
                 dpot = coords.z*np.power(coords.x*coords.x +
@@ -193,9 +208,14 @@ class Hydro:
         if param.geometry == 'cyl':
             if direction == 0:
                 state.dens /= coords.x
-                state.vely = state.vely/(coords.x*coords.x) - \
-                np.power(coords.x, -1.5)
+                state.vely = state.vely/coords.x - np.power(coords.x, -0.5)
+                if param.log_radial is True:
+                    state.velx *= coords.x
+                    state.dens /= coords.x
+                    state.soundspeed *= coords.x
+
             if direction == 1:
+                state.vely *= coords.x
                 state.soundspeed *= coords.x
 
     def evolve(self, t, t_max, coords, param, state,
@@ -223,7 +243,8 @@ class Hydro:
         while (t < t_max):
             # Calculate time step
             dt = param.courant*self.calc_time_step(param.geometry,
-                                                   coords, state)
+                                                   coords, state,
+                                                   param.log_radial)
             # End exactly on t_max
             if (t + dt > t_max):
                 dt = t_max - t
