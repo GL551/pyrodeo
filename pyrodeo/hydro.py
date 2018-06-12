@@ -63,12 +63,14 @@ class Hydro:
             abs_speed = np.abs(state.vely) + cs
             if geometry == 'cyl':
                 abs_speed /= coords.x
+            if geometry == 'sph':
+                abs_speed /= (coords.x*np.sin(coords.z))
             dty = coords.dxyz[1]/np.max(abs_speed)
 
         if len(state.dens[0,0,:]) > 1:
             abs_speed = np.abs(state.velz) + cs
-            #if geometry == 'sph':
-            #    abs_speed /= coords.x
+            if geometry == 'sph':
+                abs_speed /= coords.x
             dtz = coords.dxyz[2]/np.max(abs_speed)
 
         return np.min([dtx, dty, dtz])
@@ -169,6 +171,34 @@ class Hydro:
                                          coords.z*coords.z, -1.5)
                 source = -state.dens*dpot
 
+        if param.geometry == 'sph':
+            sint = np.sin(coords.z)
+            if direction == 0:
+                c = state.soundspeed
+
+                state.dens *= coords.x*coords.x*sint
+                state.vely = state.vely*coords.x + np.sqrt(coords.x)
+                state.velz *= coords.x
+                source = state.dens*(((state.vely*state.vely +
+                                       state.velz*state.velz)/coords.x -
+                                       1.0)/(coords.x*coords.x) +
+                                       2.0*c*c/coords.x)
+            if direction == 1:
+                g = 1.0/(coords.x*sint)
+                state.vely *= g
+                state.soundspeed *= g
+
+            if direction == 2:
+                state.dens *= sint
+                state.vely = sint*(state.vely/coords.x +
+                                   np.power(coords.x, -1.5))
+                state.velz /= coords.x
+                state.soundspeed /= coords.x
+
+                cott = np.cos(coords.z)/sint
+                source = state.dens*cott*(state.vely*state.vely/(sint*sint) +
+                                          state.soundspeed*state.coundspeed)
+
         if direction == 1:
             source = source.transpose((1,0,2))
             state.transpose((1,0,2))
@@ -216,6 +246,25 @@ class Hydro:
 
             if direction == 1:
                 state.vely *= coords.x
+                state.soundspeed *= coords.x
+
+        if param.geometry == 'sph':
+            sint = np.sin(coords.z)
+            if direction == 0:
+                state.dens /= (coords.x*coords.x*sint)
+                state.vely = (state.vely - np.sqrt(coords.x))/coords.x
+                state.velz /= coords.x
+
+            if direction == 1:
+                g = coords.x*sint
+                state.vely *= g
+                state.soundspeed *= g
+
+            if direction == 2:
+                state.dens /= sint
+                state.vely = state.vely*coords.x/sint - \
+                  np.power(coords.x, -0.5)
+                state.velz *= coords.x
                 state.soundspeed *= coords.x
 
     def evolve(self, t, t_max, coords, param, state,

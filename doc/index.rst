@@ -348,7 +348,7 @@ Finally, spherical coordinates:
 
 .. math::
 
-   \bar\rho =rho, \bar v_x =v_r, \bar v_y =v_\varphi/(r\sin\theta),
+   \bar\rho =\rho, \bar v_x =v_r, \bar v_y =v_\varphi/(r\sin\theta),
    \bar v_z =v_\theta, \bar c =c/(r\sin\theta), \bar x =r, \bar y =\varphi, \bar
    z =\theta, S_y =0
 
@@ -396,9 +396,9 @@ Finally, spherical coordinates:
 
 .. math::
 
-   \bar\rho =\sin\theta \rho, \bar v_x =v_r, \bar v_y =\sin\theta v_\varphi,
+   \bar\rho =\sin\theta \rho, \bar v_x =v_r, \bar v_y =\sin\theta v_\varphi/r,
    \bar v_z =v_\theta/r, \bar c =c/r, \bar x =r, \bar y =\varphi, \bar
-   z =\theta, S_z =\rho \cos\theta (v_\varphi^2+c^2)/r^2
+   z =\theta, S_z =\bar\rho \cot\theta (\bar v_y^2/\sin^2\theta+\bar c^2)
 
 Unified approach
 """""""""""""""""""""""""""
