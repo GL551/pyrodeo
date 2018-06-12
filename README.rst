@@ -23,11 +23,11 @@ is to perform numerical simulations of astrophysical (gas) discs.
 Features
 -----------------------------
 
-* Two-dimensional inviscid isothermal hydrodynamics using a Riemann
-  solver.
+* Two- and three-dimensional inviscid isothermal hydrodynamics using a
+  Riemann solver.
 * Second order in space and time in regions of smooth flow.
-* Different geometries: Cartesian, Shearing Sheet and cylindrical
-  coordinates.
+* Different geometries: Cartesian, Shearing Sheet, cylindrical
+  coordinates andspherical coordinates.
 * HDF5 output
 
 Quick start
