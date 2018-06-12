@@ -186,6 +186,12 @@ class Hydro:
                                        state.velz*state.velz)/coords.x -
                                        1.0)/(coords.x*coords.x) +
                                        2.0*c*c/coords.x)
+                if param.log_radial is True:
+                    state.velx = state.velx/coords.x
+                    state.dens *= coords.x
+                    state.soundspeed /= coords.x
+                    source = source - state.dens*state.velx*state.velx - \
+                      state.soundspeed*state.soundspeed*state.dens
             if direction == 1:
                 g = 1.0/(coords.x*sint)
                 state.vely *= g
@@ -257,6 +263,10 @@ class Hydro:
                 state.dens /= (coords.x*coords.x*sint)
                 state.vely = (state.vely - np.sqrt(coords.x))/coords.x
                 state.velz /= coords.x
+                if param.log_radial is True:
+                    state.velx *= coords.x
+                    state.dens /= coords.x
+                    state.soundspeed *= coords.x
 
             if direction == 1:
                 g = coords.x*sint
