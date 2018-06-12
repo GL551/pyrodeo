@@ -63,7 +63,7 @@ Version 0.0.8
 
 * Small fixes in tests and documentation
 
- Version 0.0.7
+Version 0.0.7
 --------------
 
 * 3D isothermal
