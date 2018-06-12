@@ -13,7 +13,7 @@ Pyrodeo
     :target: https://pypi.python.org/pypi/pyrodeo
 .. image:: http://img.shields.io/travis/SijmeJan/pyrodeo/master.svg?style=flat
     :target: https://travis-ci.org/SijmeJan/pyrodeo/
-.. image:: https://coveralls.io/repos/SijmeJan/pyrodeo/badge.svg?branch=master&service=github
+.. image:: https://coveralls.io/repos/github/SijmeJan/pyrodeo/badge.svg?branch=master
     :target: https://coveralls.io/github/SijmeJan/pyrodeo?branch=master
 
 Pyrodeo is a Python implementation of the isothermal hydrodynamic
