@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 import pyrodeo
 
 def test_sph():
-    sim = pyrodeo.Simulation.from_geom('cyl',
+    sim = pyrodeo.Simulation.from_geom('sph',
                                        dimensions=[128, 1, 32],
                                        domain=([0.4, 2.5],
                                                [],
