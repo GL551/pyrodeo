@@ -143,42 +143,42 @@ of the stellar gravity:
 Cylindrical coordinates
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For a full disc cylindrical coordinates are preferred. This time we
-have geometrical source terms and gravity from the central object to
-worry about. The continuity equation now reads:
+For a full disc in two dimensions cylindrical coordinates
+:math:`(R,\varphi,z)` are preferred. This time we have geometrical
+source terms and gravity from the central object to worry about. The
+continuity equation now reads:
 
 .. math::
 
-    \frac{\partial}{\partial t}(r\rho) + \frac{\partial}{\partial r}(r\rho
-    v_r) + \frac{\partial}{\partial \varphi}(r\rho v_\varphi) + \frac{\partial}{\partial z}(r\rho v_z)=0
+    \frac{\partial}{\partial t}(R\rho) + \frac{\partial}{\partial R}(R\rho
+    v_R) + \frac{\partial}{\partial \varphi}(\rho v_\varphi) + \frac{\partial}{\partial z}(R\rho v_z)=0
 
-Note that :math:`v_\varphi` is an angular velocity. The radial
-momentum equation now includes source terms representing centrifugal
-and gravitational forces, in addition to a geometrical pressure source
-term:
+The radial momentum equation now includes source terms representing
+centrifugal and gravitational forces, in addition to a geometrical
+pressure source term:
 
 .. math::
 
-    \frac{\partial}{\partial t}(r\rho v_r) + \frac{\partial}{\partial r}(r\rho
-    v_r^2 + c^2r\rho) + \frac{\partial}{\partial \varphi}(r\rho v_r
-    v_\varphi)+\frac{\partial}{\partial z}(r\rho v_r v_z)= r^2\rho v_\varphi^2 - r^2\rho\frac{GM_*}{(r^2+z^2)^{3/2}} + c^2\rho
+    \frac{\partial}{\partial t}(R\rho v_R) + \frac{\partial}{\partial R}(R\rho
+    v_R^2 + c^2R\rho) + \frac{\partial}{\partial \varphi}(\rho v_R
+    v_\varphi)+\frac{\partial}{\partial z}(R\rho v_R v_z)= \rho v_\varphi^2 - R^2\rho\frac{GM_*}{(R^2+z^2)^{3/2}} + c^2\rho
 
 In the :math:`\varphi` direction we get a Coriolis source term:
 
 .. math::
 
-    \frac{\partial}{\partial t}(r\rho v_\varphi) + \frac{\partial}{\partial r}(r\rho
-    v_r v_\varphi) + \frac{\partial}{\partial \varphi}(r\rho v_\varphi^2 +
-    c^2\rho/r) +\frac{\partial}{\partial z}(r\rho v_\varphi v_z)=-2\rho v_r v_\varphi
+    \frac{\partial}{\partial t}(\rho v_\varphi) + \frac{\partial}{\partial R}(\rho
+    v_R v_\varphi) + \frac{1}{R}\frac{\partial}{\partial \varphi}(\rho v_\varphi^2 +
+    c^2\rho) +\frac{\partial}{\partial z}(\rho v_\varphi v_z)=-2\rho v_R v_\varphi/R
 
 In the vertical direction we again have the vertical component of the
 stellar gravity:
 
 .. math::
 
-    \frac{\partial}{\partial t}(r\rho v_z) + \frac{\partial}{\partial r}(r\rho
-    v_r v_z) + \frac{\partial}{\partial \varphi}(r\rho v_\varphi v_z)+
-    \frac{\partial}{\partial z}(r\rho v_z^2 + c^2r\rho) = -r\rho z\frac{GM_*}{(r^2+z^2)^{3/2}}
+    \frac{\partial}{\partial t}(R\rho v_z) + \frac{\partial}{\partial R}(R\rho
+    v_R v_z) + \frac{\partial}{\partial \varphi}(\rho v_\varphi v_z)+
+    \frac{\partial}{\partial z}(R\rho v_z^2 + c^2R\rho) = -R\rho z\frac{GM_*}{(R^2+z^2)^{3/2}}
 
 .. NOTE::
    The unit of mass is taken to be the mass of the central object. The
@@ -186,6 +186,45 @@ stellar gravity:
    inverse angular velocity at the reference radius. In this system of
    units, the gravitational constant is unity, and one orbit equals
    :math:`2\pi` time units.
+
+Spherical coordinates
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For a full disc in three dimensions spherical coordinates
+:math:`(r,\theta,\varphi)` are often preferred. The continuity and
+momentum equations now read:
+
+.. math::
+
+    \frac{\partial}{\partial t}(r^2\sin\theta\rho) +
+    \frac{\partial}{\partial r}(r^2\sin\theta\rho v_r) + \frac{\partial}{\partial \varphi}(r\rho v_\varphi) + \frac{\partial}{\partial \theta}(r\sin\theta\rho v_\theta)=0
+
+.. math::
+
+    \frac{\partial}{\partial t} (r^2\sin\theta\rho v_r)
+    +\frac{\partial}{\partial r}(r^2\sin\theta\rho(v_r^2+c^2)) +
+    \frac{\partial}{\partial\theta}(r\rho v_r v_\theta\sin\theta) + \frac{\partial}{\partial\varphi} (r\rho v_r v_\varphi) = \\
+    r^2\sin\theta\rho\frac{v_\theta^2 + v_\varphi^2}{r}
+    -r^2\sin\theta\rho\frac{\partial \Phi}{\partial r}+2r\sin\theta c^2\rho
+
+.. math::
+
+   \frac{\partial}{\partial t} (r^2\sin\theta\rho v_\theta) +
+   \frac{\partial}{\partial r}(r^2\sin\theta\rho v_rv_\theta) +
+   \frac{\partial}{\partial\theta}(r\sin\theta(\rho v_\theta^2 + p)) +
+   \frac{\partial}{\partial\varphi}(r\rho v_\varphi v_\theta) = \\
+   r\rho v_\varphi^2\cos\theta - r\sin\theta\rho v_rv_\theta + r\cos\theta p
+
+.. math::
+
+   \frac{\partial}{\partial t} (r^2\sin\theta\rho v_\varphi) +
+   \frac{\partial}{\partial r}(r^2\sin\theta\rho v_r v_\varphi) +
+   \frac{\partial}{\partial\theta}(r\sin\theta\rho v_\theta
+   v_\varphi) + \frac{\partial}{\partial\varphi}(r\rho
+   (v_\varphi^2+c^2)) = \\
+   -r\sin\theta\rho v_\varphi v_r-r\rho v_\varphi
+   v_\theta \cos\theta
+
 
 Extra source terms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -202,8 +241,12 @@ Numerical method
 Dimensional splitting
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Pyrodeo uses dimensional splitting to integrate the equations. For the
-x direction (therefore neglecting y-derivatives), we can cast the
+Pyrodeo uses dimensional splitting to integrate the equations.
+
+First direction (x, r)
+"""""""""""""""""""""""""""
+
+For the x direction (therefore neglecting y- and z-derivatives), we can cast the
 equations into the following form:
 
 .. math::
@@ -241,16 +284,29 @@ For the shearing sheet, we need
    \bar\rho =\rho, \bar v_x = v_x, \bar v_y = v_y - \Omega x/2, \bar v_z = v_z, \bar c = c, \bar x
    = x, \bar y = y, \bar z = z , S_x = 2\Omega \rho (v_y +3\Omega x/2)
 
-Finally, in cylindrical coordinates we need
+In cylindrical coordinates we need
 
 .. math::
 
-   \bar\rho =r\rho, \bar v_x = v_r, \bar v_y = r^2v_\varphi, \bar v_z
+   \bar\rho =R\rho, \bar v_x = v_R, \bar v_y = Rv_\varphi, \bar v_z
    = v_z, \bar c = c, \bar x
-   = r, \bar y = \varphi, \bar z = z , S_x = r^2\rho v_\varphi^2 -
-   \frac{r^2\rho GM_*}{(r^2+z^2)^{3/2}} + c^2\rho
+   = R, \bar y = \varphi, \bar z = z , S_x = \rho v_\varphi^2 -
+   \frac{R^2\rho GM_*}{(R^2+z^2)^{3/2}} + c^2\rho
 
-For the y-integration (neglecting x-derivatives) we can cast the
+Finally, for spherical coordinates we need:
+
+.. math::
+
+   \bar\rho =r^2\sin\theta \rho, \bar v_x =v_r, \bar v_y =rv_\varphi ,
+   \bar v_z =rv_\theta, \bar c = c, \bar x = r, \bar y = \varphi, \bar
+   z = \theta, S_x = \bar\rho\frac{\bar v_z^2 + \bar
+   v_y^2}{r^3}-\bar\rho\frac{\partial \Phi}{\partial r}+\frac{2
+   c^2\bar\rho}{r}
+
+Second direction (y, :math:`\varphi`)
+"""""""""""""""""""""""""""""""""""""""""""""""
+
+For the y-integration (neglecting x- and z-derivatives) we can cast the
 equations in the form:
 
 .. math::
@@ -285,8 +341,19 @@ In cylindrical coordinates we need
 
 .. math::
 
-   \bar\rho =\rho, \bar v_x = v_r, \bar v_y = v_\varphi, \bar v_z =
-   v_z, \bar c = c/r, \bar x = r, \bar y = \varphi, \bar z = z, S_y = 0
+   \bar\rho =\rho, \bar v_x = v_R, \bar v_y = v_\varphi/R, \bar v_z =
+   v_z, \bar c = c/R, \bar x = R, \bar y = \varphi, \bar z = z, S_y = 0
+
+Finally, spherical coordinates:
+
+.. math::
+
+   \bar\rho =rho, \bar v_x =v_r, \bar v_y =v_\varphi/(r\sin\theta),
+   \bar v_z =v_\theta, \bar c =c/(r\sin\theta), \bar x =r, \bar y =\varphi, \bar
+   z =\theta, S_y =0
+
+Third direction (z, :math:`\theta`)
+"""""""""""""""""""""""""""""""""""""""""""""""
 
 Finally, for the z integration we can cast the equations in the form:
 
@@ -322,8 +389,19 @@ In cylindrical coordinates we need
 
 .. math::
 
-   \bar\rho =\rho, \bar v_x = v_r, \bar v_y = v_\varphi, \bar v_z =
-   v_z, \bar c = c, \bar x = r, \bar y = \varphi, \bar z = z, S_z =-\rho z\frac{GM_*}{(r^2+z^2)^{3/2}}
+   \bar\rho =\rho, \bar v_x = v_R, \bar v_y = v_\varphi/R, \bar v_z =
+   v_z, \bar c = c, \bar x = R, \bar y = \varphi, \bar z = z, S_z =-\rho z\frac{GM_*}{(R^2+z^2)^{3/2}}
+
+Finally, spherical coordinates:
+
+.. math::
+
+   \bar\rho =\sin\theta \rho, \bar v_x =v_r, \bar v_y =\sin\theta v_\varphi,
+   \bar v_z =v_\theta/r, \bar c =c/r, \bar x =r, \bar y =\varphi, \bar
+   z =\theta, S_z =\rho \cos\theta (v_\varphi^2+c^2)/r^2
+
+Unified approach
+"""""""""""""""""""""""""""
 
 Note that the resulting equations are very symmetric in x, y and z: if we
 swap x and y in the y integration the equations have exactly the same

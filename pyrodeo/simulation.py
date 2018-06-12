@@ -45,7 +45,9 @@ class Simulation(object):
                            state.soundspeed)
         self.coords = Coordinates(coords.x,
                                   coords.y,
-                                  coords.z)
+                                  coords.z,
+                                  log_radial=coords.log_radial)
+
         self.param = Param(param)
         self.t = t
         self.direc = direc
@@ -55,6 +57,7 @@ class Simulation(object):
                   geometry,
                   dimensions=(100, 1, 1),
                   domain=([-0.5, 0.5], [], []),
+                  log_radial=False,
                   direc='./'):
         """Construct simulation from geometry.
 
@@ -64,12 +67,14 @@ class Simulation(object):
             geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet), or 'cyl' (cylindrical coordinates).
             dimensions (:obj:`(int,int,int)`,optional): Grid dimensions in x, y and z.
             domain (:obj:`[(float,float),(float,float),(float,float)]`,optional): Domain boundaries in x, y and z.
+            log_radial (bool): Flag whether to use logarithmic radial coordinate
             direc (:obj:`str`,optional): Output directory, defaults to current directory.
 
         """
-        dt, param = Param.from_geom(geometry).to_list()
+        dt, param = Param.from_geom(geometry, log_radial).to_list()
 
-        coords = Coordinates.from_dims(dimensions, domain)
+        coords = Coordinates.from_dims(dimensions, domain,
+                                       log_radial=log_radial)
 
         state = State.from_dims((len(coords.x[:,0,0]),
                                  len(coords.x[0,:,0]),
@@ -108,7 +113,8 @@ class Simulation(object):
             velz = np.array(g.get('velz'))
             soundspeed = np.array(g.get('soundspeed'))
 
-            coords = Coordinates(x, y, z)
+            coords = Coordinates(x, y, z, log_radial=param[0]['log_radial'])
+
             state = State(dens, velx, vely, velz, soundspeed)
 
             t = g.attrs['time']

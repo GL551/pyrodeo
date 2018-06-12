@@ -15,6 +15,7 @@ class Coordinates(object):
         x (ndarray): 2D ndarray containing x coordinates
         y (ndarray): 2D ndarray containing y coordinates
         z (ndarray): 2D ndarray containing z coordinates
+        log_radial (:obj:`bool`, optional): Flag whether x is a logarithmic radial coordinate.
 
     Note:
         The validity of the arrays is not checked! To be used in a simulation, they should have the same shape, with x[:,j,k] containing the x coordinates for all j,k, y[i,:,k] containing the y coordinates for all i,k and z[i,j,:] containing the z coordinates for all i,j. In addition, x, y and z should have a constant step size.
@@ -27,15 +28,19 @@ class Coordinates(object):
         z (ndarray): 3D ndarray containing z coordinates
         dimensions ([int, int, int]): grid dimensions in the x, y and z direction
         dxyz ([float, float, float]): step size in the x, y and z direction
+        log_radial (:obj:`bool`, optional): Flag whether x is a logarithmic radial coordinate.
 
     """
 
-    def __init__(self, x, y, z):
+    def __init__(self, x, y, z, log_radial=False):
         self.dimensions = (len(x[:,0,0]), len(y[0,:,0]), len(z[0,0,:]))
         self.dxyz = [0.0, 0.0, 0.0]
+        self.log_radial = log_radial
 
         if self.dimensions[0] > 1:
             self.dxyz[0] = x[1,0,0] - x[0,0,0]
+            if self.log_radial == True:
+                self.dxyz[0] = np.log(x[1,0,0]/x[0,0,0])
         if self.dimensions[1] > 1:
             self.dxyz[1] = y[0,1,0] - y[0,0,0]
         if self.dimensions[2] > 1:
@@ -46,7 +51,7 @@ class Coordinates(object):
         self.z = z
 
     @classmethod
-    def from_1d(cls, x, y, z):
+    def from_1d(cls, x, y, z, log_radial=False):
         """Initialize from 1D arrays.
 
         Build coordinates from existing 1D ndarrays (should include ghost cells). Calculate dimensions and step sizes.
@@ -55,18 +60,20 @@ class Coordinates(object):
             x (ndarray): 1D ndarray containing x coordinates
             y (ndarray): 1D ndarray containing y coordinates
             z (ndarray): 1D ndarray containing z coordinates
+            log_radial (:obj:`bool`, optional): Flag whether x is a logarithmic radial coordinate.
 
         Note:
             The validity of arrays x, y and z is not checked. They should have constant step size.
 
         """
         x, y, z = np.meshgrid(x, y, z, indexing='ij')
-        return cls(x, y, z)
+        return cls(x, y, z, log_radial=log_radial)
 
     @classmethod
     def from_dims(cls,
                   dimensions=(100, 1, 1),
-                  domain=([-0.5, 0.5], [], [])):
+                  domain=([-0.5, 0.5], [], []),
+                  log_radial=False):
         """Initialize from dimensions and domain size.
 
         Build coordinates given the dimensions of the grid and the size of the domain. Some basic checks are performed to ensure the resulting coordinates are valid.
@@ -74,6 +81,7 @@ class Coordinates(object):
         Args:
             dimensions (:obj:`(int,int,int)`, optional): Dimensions of the grid
             domain (:obj:`([float,float],[float,float],[float,float])`, optional): Domain boundaries in x, y and z
+            log_radial (:obj:`bool`, optional): Flag whether x will be a logarithmic radial coordinate.
         """
         # Check if dimensions valid
         if len(dimensions) != 3:
@@ -96,6 +104,12 @@ class Coordinates(object):
         if dimensions[0] > 1:
             if domain[0][1] <= domain[0][0]:
                 raise ValueError('Invalid x domain')
+
+            # Convert boundaries to log
+            if log_radial is True:
+                domain[0][0] = np.log(domain[0][0])
+                domain[0][1] = np.log(domain[0][1])
+
             dxy[0] = (domain[0][1] - domain[0][0])/np.float(dimensions[0])
 
             # x coordinates, including two ghost cells on either side
@@ -103,6 +117,11 @@ class Coordinates(object):
                             domain[0][1] + 2.5*dxy[0],
                             dimensions[0] + 4,
                             endpoint=False)
+
+            # Make x normal radius (but unevenly spaced!)
+            if log_radial is True:
+                x = np.exp(x)
+
         else:
             x = [0.0]
 
@@ -130,7 +149,7 @@ class Coordinates(object):
         else:
             z = [0.0]
 
-        return cls.from_1d(x, y, z)
+        return cls.from_1d(x, y, z, log_radial=log_radial)
 
     def __str__(self):
         """Show information about coordinates."""
