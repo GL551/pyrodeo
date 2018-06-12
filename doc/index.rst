@@ -51,9 +51,9 @@ The current version supports inviscid isothermal hydrodynamics in three spatial
 dimensions. Isothermal means the pressure :math:`p` is related to the
 density :math:`\rho` simply through :math:`p=c^2\rho`, where the sound
 speed :math:`c` is either a constant (fully isothermal) or a
-prescribed function of position (locally isothermal). Three geometries
-are available: Cartesian coordinates, the Shearing Sheet and
-Cylindrical coordinates.
+prescribed function of position (locally isothermal). Four geometries
+are available: Cartesian coordinates, the shearing sheet, cylindrical
+coordinates and spherical coordinates.
 
 Cartesian coordinates
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -92,7 +92,8 @@ Shearing Sheet
 
 The Shearing Sheet is essentially a Cartesian model of a small patch
 in an astrophysical disc. This patch is rotating at the local
-Keplerian velocity, which means that Coriolis and centrifugal-type forces need to be
+Keplerian angular velocity :math:`Omega`, which means that Coriolis
+and centrifugal-type forces need to be
 included on the right-hand side of the equations. On the other hand,
 the patch is assumed to be small enough so that a local Cartesian
 frame can be used in stead of cylindrical coordinates. Usually the
@@ -230,10 +231,10 @@ Extra source terms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Pyrodeo solves inviscid isothermal hydrodynamics, and in the shearing
-sheet and  cylindrical geometries only gravity from the central object is
-considered. Extra physics, as far as it concerns extra source terms,
-can be added by a user-defined source integration function. See the :ref:`Examples`
-section.
+sheet and cylindrical and spherical geometries only gravity from the
+central object is considered. Extra physics, as far as it concerns
+extra source terms, can be added by a user-defined source integration
+function. See the :ref:`Examples` section.
 
 Numerical method
 -------------------------------
@@ -243,7 +244,7 @@ Dimensional splitting
 
 Pyrodeo uses dimensional splitting to integrate the equations.
 
-First direction (x, r)
+First direction (x, R, r)
 """""""""""""""""""""""""""
 
 For the x direction (therefore neglecting y- and z-derivatives), we can cast the
@@ -300,7 +301,7 @@ Finally, for spherical coordinates we need:
    \bar\rho =r^2\sin\theta \rho, \bar v_x =v_r, \bar v_y =rv_\varphi ,
    \bar v_z =rv_\theta, \bar c = c, \bar x = r, \bar y = \varphi, \bar
    z = \theta, S_x = \bar\rho\frac{\bar v_z^2 + \bar
-   v_y^2}{r^3}-\bar\rho\frac{\partial \Phi}{\partial r}+\frac{2
+   v_y^2}{r^3}-\bar\rho\frac{GM_*}{r^2}+\frac{2
    c^2\bar\rho}{r}
 
 Second direction (y, :math:`\varphi`)
@@ -378,12 +379,15 @@ Finally, for the z integration we can cast the equations in the form:
     \frac{\partial}{\partial \bar z}(\bar\rho
     \bar v_z^2 + \bar c^2\bar \rho) = S_z
 
-For both the Cartesian setup and the shearing sheet, we simply have
+For both the Cartesian setup, we simply have
 
 .. math::
 
    \bar\rho =\rho, \bar v_x = v_x, \bar v_y = v_y, \bar v_z = v_z, \bar c = c, \bar x
-   = x, \bar y = y, \bar z = z, S_z = -\rho\Omega^2 z
+   = x, \bar y = y, \bar z = z, S_z = 0,
+
+with the shearing sheet being exactly the same but with a non-zero
+source :math:`S_z=-\rho\Omega^2 z`.
 
 In cylindrical coordinates we need
 
@@ -425,6 +429,11 @@ to advance the system
 
     \frac{\partial}{\partial t}(\bar\rho \bar v_y) +
     \frac{\partial}{\partial \bar x}(\bar\rho\bar v_x \bar v_y) =0
+
+.. math::
+
+    \frac{\partial}{\partial t}(\bar\rho \bar v_z) +
+    \frac{\partial}{\partial \bar x}(\bar\rho\bar v_x \bar v_z) =0
 
 This is what is done in the :class:`.Roe` class. The necessary
 preparation is done in the :class:`.Hydro` class.

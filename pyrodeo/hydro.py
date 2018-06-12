@@ -175,11 +175,10 @@ class Hydro:
                 source = -state.dens*dpot
 
         if param.geometry == 'sph':
-            sint = np.sin(coords.z)
             if direction == 0:
                 c = state.soundspeed
 
-                state.dens *= coords.x*coords.x*sint
+                state.dens *= coords.x*coords.x
                 state.vely = state.vely*coords.x + np.sqrt(coords.x)
                 state.velz *= coords.x
                 source = state.dens*(((state.vely*state.vely +
@@ -193,11 +192,13 @@ class Hydro:
                     source = source - state.dens*state.velx*state.velx - \
                       state.soundspeed*state.soundspeed*state.dens
             if direction == 1:
-                g = 1.0/(coords.x*sint)
+                g = 1.0/(coords.x*np.sin(coords.z))
                 state.vely *= g
                 state.soundspeed *= g
 
             if direction == 2:
+                sint = np.sin(coords.z)
+
                 state.dens *= sint
                 state.vely = sint*(state.vely/coords.x +
                                    np.power(coords.x, -1.5))
@@ -258,9 +259,8 @@ class Hydro:
                 state.soundspeed *= coords.x
 
         if param.geometry == 'sph':
-            sint = np.sin(coords.z)
             if direction == 0:
-                state.dens /= (coords.x*coords.x*sint)
+                state.dens /= (coords.x*coords.x)
                 state.vely = (state.vely - np.sqrt(coords.x))/coords.x
                 state.velz /= coords.x
                 if param.log_radial is True:
@@ -269,11 +269,12 @@ class Hydro:
                     state.soundspeed *= coords.x
 
             if direction == 1:
-                g = coords.x*sint
+                g = coords.x*np.sin(coords.z)
                 state.vely *= g
                 state.soundspeed *= g
 
             if direction == 2:
+                sint = np.sin(coords.z)
                 state.dens /= sint
                 state.vely = state.vely*coords.x/sint - \
                   np.power(coords.x, -0.5)
