@@ -117,10 +117,10 @@ class LinearAdvection(ClawSolver):
         # Shift integer number of cells
         for i in range(ny):
             n = int(Nshift[0,i,0])
-            dens[:,i,:] = np.roll(dens[:,i,:], n)
-            momx[:,i,:] = np.roll(momx[:,i,:], n)
-            momy[:,i,:] = np.roll(momy[:,i,:], n)
-            momz[:,i,:] = np.roll(momz[:,i,:], n)
+            dens[:,i,:] = np.roll(dens[:,i,:], n, axis=0)
+            momx[:,i,:] = np.roll(momx[:,i,:], n, axis=0)
+            momy[:,i,:] = np.roll(momy[:,i,:], n, axis=0)
+            momz[:,i,:] = np.roll(momz[:,i,:], n, axis=0)
 
         # Switch back to velocities
         state.velx /= state.dens

@@ -64,7 +64,7 @@ class Simulation(object):
         Construct simulation class from geometry, grid dimensions and domain size. All other parameters will be set to defaults. Simulation time is set to zero.
 
         Args:
-            geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet), or 'cyl' (cylindrical coordinates).
+            geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet), 'cyl' (cylindrical coordinates) or 'sph' (spherical coordinates).
             dimensions (:obj:`(int,int,int)`,optional): Grid dimensions in x, y and z.
             domain (:obj:`[(float,float),(float,float),(float,float)]`,optional): Domain boundaries in x, y and z.
             log_radial (bool): Flag whether to use logarithmic radial coordinate

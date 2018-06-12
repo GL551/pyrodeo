@@ -14,7 +14,7 @@ class Param(object):
     """Create instance from list of parameters.
 
     Args:
-        param_list ([str, float, float, float, str, str, str]): List of parameters; geometry (string), courant (float), fluxlimiter (float), frame_rotation (float), boundaries x (string), boundaries y (string) and boundaries z (string)
+        param_list ([str, float, float, float, str, str, str]): List of parameters; geometry (string), courant (float), fluxlimiter (float), frame_rotation (float), log_radial (bool), boundaries x (string), boundaries y (string) and boundaries z (string)
 
     Note:
         The validity of the parameters is not checked.
@@ -22,7 +22,7 @@ class Param(object):
     The following public attributes are available:
 
     Attributes:
-        geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet) or 'cyl' (cylindrical coordinates)
+        geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet), 'cyl' (cylindrical coordinates) or 'sph' (spherical coordinates).
         courant (float): Courant number, should be > 0 and < 1.
         limiter_param (float): Limiter parameter. Should be between 1 (minmod) and 2 (superbee).
         min_dens (float): Minimum density to switch to HLL solver to remain positive.
@@ -51,7 +51,7 @@ class Param(object):
         Construct Parameter object from geometry and boundary conditions. All other parameters are set to standard values. Check if geometry and boundary conditions are valid.
 
         Args:
-            geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet) or 'cyl' (cylindrical coordinates).
+            geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet), 'cyl' (cylindrical coordinates) or 'sph' (spherical coordinates).
             boundaries (string, string, string): boundary conditions; 'reflect', 'nonreflect' or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
 
         """
@@ -61,10 +61,13 @@ class Param(object):
         frame_rotation = 1.0
         if (geometry != 'cart' and
             geometry != 'sheet' and
-            geometry != 'cyl'):
+            geometry != 'cyl' and
+            geometry != 'sph'):
             raise ValueError('Invalid geometry')
-        if (log_radial is True and geometry != 'cyl'):
-            raise ValueError('Can only use logarithmic in cylindrical coordinates')
+        if (log_radial == True and
+            geometry != 'cyl' and
+            geometry != 'sph'):
+            raise ValueError('Can only use logarithmic in cylindrical of spherical coordinates')
         if len(boundaries) != 3:
             raise TypeError('Expected boundaries to have three elements')
         if (boundaries[0] != 'reflect' and
