@@ -32,6 +32,9 @@ class Hydro:
         if param.geometry == 'cyl':
             v_adv = (np.power(coords.x, -1.5) -
                      param.frame_rotation).transpose((1,0,2))
+        if param.geometry == 'sph':
+            v_adv = (np.power(coords.x, -1.5)/np.sin(coords.z) -
+                     param.frame_rotation).transpose((1,0,2))
         self.orbital_advection = LinearAdvection(v_adv, param.limiter_param)
         self.roe = Roe(param.limiter_param, param.min_dens)
 
@@ -197,7 +200,7 @@ class Hydro:
 
                 cott = np.cos(coords.z)/sint
                 source = state.dens*cott*(state.vely*state.vely/(sint*sint) +
-                                          state.soundspeed*state.coundspeed)
+                                          state.soundspeed*state.soundspeed)
 
         if direction == 1:
             source = source.transpose((1,0,2))
