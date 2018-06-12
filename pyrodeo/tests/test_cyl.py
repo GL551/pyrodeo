@@ -69,9 +69,10 @@ def test_cyl():
     sim.evolve([0.01*2.0*np.pi],
                planet_source, (0.001, 0.6*0.05), new_file=True)
 
-    # Axisymmetric (r,z)
+    # Axisymmetric, logarithmic (r,z)
     sim = pyrodeo.Simulation.from_geom('cyl',
                                        dimensions=[128, 1, 32],
-                                       domain=([0.4, 2.5],[],[-0.1,0.1]))
+                                       domain=([0.4, 2.5],[],[-0.1,0.1]),
+                                       log_radial=True)
 
     sim.evolve([0.01*2.0*np.pi], new_file=True)
