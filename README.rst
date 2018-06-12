@@ -58,6 +58,14 @@ http://pyrodeo.readthedocs.org
 Changelog
 =========
 
+Version 0.0.7
+--------------
+
+* 3D isothermal
+* Spherical coordinates
+* Logarithmic radial coordinate
+* Various small fixes
+
 Version 0.0.6
 --------------
 
