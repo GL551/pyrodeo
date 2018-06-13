@@ -57,13 +57,13 @@ class Hydro:
         dty = dtx
         dtz = dtx
         if len(state.dens[:,0,0]) > 1:
-            abs_speed = np.abs(state.velx) + cs
+            abs_speed = (np.abs(state.velx) + cs)*state.no_ghost
             if log_radial is True:
                 abs_speed /= coords.x
             dtx = coords.dxyz[0]/np.max(abs_speed)
 
         if len(state.dens[0,:,0]) > 1:
-            abs_speed = np.abs(state.vely) + cs
+            abs_speed = (np.abs(state.vely) + cs)*state.no_ghost
             if geometry == 'cyl':
                 abs_speed /= coords.x
             if geometry == 'sph':
@@ -71,7 +71,7 @@ class Hydro:
             dty = coords.dxyz[1]/np.max(abs_speed)
 
         if len(state.dens[0,0,:]) > 1:
-            abs_speed = np.abs(state.velz) + cs
+            abs_speed = (np.abs(state.velz) + cs)*state.no_ghost
             if geometry == 'sph':
                 abs_speed /= coords.x
             dtz = coords.dxyz[2]/np.max(abs_speed)
@@ -321,7 +321,7 @@ class Hydro:
                 print("Current time: {}, time step: {}".format(t, dt))
 
                 # Shear periodic x boundaries if necessary
-                if param.boundaries[0] == 'shear periodic':
+                if param.boundaries[0][0] == 'shear periodic':
                     self.shear_periodic_boundaries(t, coords, state)
 
                 # Dimensional split: do all dimensions independently
