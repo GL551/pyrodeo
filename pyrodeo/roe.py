@@ -77,20 +77,32 @@ class Roe(ClawSolver):
             dx (float): Space step.
             state (:class:`.State`): Current :class:`.State`, will be updated.
             source (ndarray): Geometric source terms, must have same shape as state.dens.
-            bc (str): Boundary condition: 'periodic' or 'reflect' (other boundary conditions are dealt with elsewhere).
+            bc (str, str): Boundary conditions (in and out): 'periodic', 'symmetry', or 'reflect' (other boundary conditions are dealt with elsewhere).
 
         """
         # Set periodic boundaries
-        if bc == 'periodic':
-            state.dens[:2,:] = state.dens[-4:-2,:]
-            state.velx[:2,:] = state.velx[-4:-2,:]
-            state.vely[:2,:] = state.vely[-4:-2,:]
-            state.velz[:2,:] = state.velz[-4:-2,:]
+        if bc[0] == 'periodic':
+            state.dens[:2,:,:] = state.dens[-4:-2,:,:]
+            state.velx[:2,:,:] = state.velx[-4:-2,:,:]
+            state.vely[:2,:,:] = state.vely[-4:-2,:,:]
+            state.velz[:2,:,:] = state.velz[-4:-2,:,:]
 
-            state.dens[-2:,:] = state.dens[2:4,:]
-            state.velx[-2:,:] = state.velx[2:4,:]
-            state.vely[-2:,:] = state.vely[2:4,:]
-            state.velz[-2:,:] = state.velz[2:4,:]
+            state.dens[-2:,:,:] = state.dens[2:4,:,:]
+            state.velx[-2:,:,:] = state.velx[2:4,:,:]
+            state.vely[-2:,:,:] = state.vely[2:4,:,:]
+            state.velz[-2:,:,:] = state.velz[2:4,:,:]
+
+        # Symmetry boundary
+        if bc[0] == 'symmetry':
+            state.dens[:2,:,:] = state.dens[4:2:-1,:,:]
+            state.velx[:2,:,:] = state.velx[4:2:-1,:,:]
+            state.vely[:2,:,:] = state.vely[4:2:-1,:,:]
+            state.velz[:2,:,:] = state.velz[4:2:-1,:,:]
+        if bc[1] == 'symmetry':
+            state.dens[-2:,:,:] = state.dens[-2:-4:-1,:,:]
+            state.velx[-2:,:,:] = state.velx[-2:-4:-1,:,:]
+            state.vely[-2:,:,:] = state.vely[-2:-4:-1,:,:]
+            state.velz[-2:,:,:] = state.velz[-2:-4:-1,:,:]
 
         dens_left = np.roll(state.dens, 1, axis=0)
         velx_left = np.roll(state.velx, 1, axis=0)
@@ -211,13 +223,14 @@ class Roe(ClawSolver):
         fmomy = theta*f2momy - (theta - 1.0)*f1momy
         fmomz = theta*f2momz - (theta - 1.0)*f1momz
 
-        if bc == 'reflect':
+        if bc[0] == 'reflect':
             c = state.soundspeed[2,:,:]
             fdens[2,:,:] = 0.0
             fmomx[2,:,:] = c*c*state.dens[2,:,:] - 0.5*dx*source[2,:,:]
             fmomy[2,:,:] = 0.0
             fmomz[2,:,:] = 0.0
 
+        if bc[1] == 'reflect':
             c = state.soundspeed[-3,:,:]
             fdens[-2,:,:] = 0.0
             fmomx[-2,:,:] = c*c*state.dens[-3,:,:] + 0.5*dx*source[-3,:,:]

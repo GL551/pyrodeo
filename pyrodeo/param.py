@@ -28,7 +28,7 @@ class Param(object):
         min_dens (float): Minimum density to switch to HLL solver to remain positive.
         frame_rotation (float): Frame rotation rate. Ignored in Cartesian coordinates, should be unity in a shearing sheet calculation and corresponds to the angular velocity of the coordinate frame in cylindrical coordinates.
         log_radial (bool): Flag whether to use logarithmic radial coordinates in cylindrical geometry.
-        boundaries (string, string, string): Boundary conditions in x y and z: 'nonreflect', 'reflect', or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
+        boundaries ((str,str), (str,str), (str,str)): Boundary conditions (in and out) in x y and z: 'nonreflect', 'reflect', 'symmetric', or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
 
     """
 
@@ -39,20 +39,24 @@ class Param(object):
         self.min_dens       = param_list[3]
         self.frame_rotation = param_list[4]
         self.log_radial     = param_list[5]
-        self.boundaries     = [param_list[6], param_list[7], param_list[8]]
+        self.boundaries     = [[param_list[6], param_list[7]],
+                               [param_list[8], param_list[9]],
+                               [param_list[10], param_list[11]]]
 
     @classmethod
     def from_geom(cls,
                   geometry,
                   log_radial=False,
-                  boundaries=['reflect', 'reflect', 'reflect']):
+                  boundaries=[['reflect','reflect'],
+                              ['reflect','reflect'],
+                              ['reflect','reflect']]):
         """Initialization from geometry and boundary conditions.
 
         Construct Parameter object from geometry and boundary conditions. All other parameters are set to standard values. Check if geometry and boundary conditions are valid.
 
         Args:
             geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet), 'cyl' (cylindrical coordinates) or 'sph' (spherical coordinates).
-            boundaries (string, string, string): boundary conditions; 'reflect', 'nonreflect' or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
+            boundaries ((str,str), (str,str), (str,str)): boundary conditions; 'reflect', 'nonreflect', 'symmetry', or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
 
         """
         courant = 0.4
@@ -70,20 +74,26 @@ class Param(object):
             raise ValueError('Can only use logarithmic in cylindrical of spherical coordinates')
         if len(boundaries) != 3:
             raise TypeError('Expected boundaries to have three elements')
-        if (boundaries[0] != 'reflect' and
-            boundaries[0] != 'nonreflect' and
-            boundaries[0] != 'periodic' and
-            boundaries[0] != 'shear periodic'):
-            raise ValueError('Invalid x boundary')
-        if (boundaries[1] != 'reflect' and
-            boundaries[1] != 'nonreflect' and
-            boundaries[1] != 'periodic'):
-            raise ValueError('Invalid y boundary')
-        if (boundaries[2] != 'reflect' and
-            boundaries[2] != 'nonreflect' and
-            boundaries[2] != 'periodic'):
-            raise ValueError('Invalid z boundary')
-        if (boundaries[0] == 'shear periodic' and
+        for bc in boundaries[0]:
+            if (bc != 'reflect' and
+                bc != 'nonreflect' and
+                bc != 'periodic' and
+                bc != 'shear periodic' and
+                bc != 'symmetric'):
+                raise ValueError('Invalid x boundary')
+        for bc in boundaries[1]:
+            if (bc != 'reflect' and
+                bc != 'nonreflect' and
+                bc != 'periodic' and
+                bc != 'symmetric'):
+                raise ValueError('Invalid y boundary')
+        for bc in boundaries[2]:
+            if (bc != 'reflect' and
+                bc != 'nonreflect' and
+                bc != 'periodic' and
+                bc != 'symmetric'):
+                raise ValueError('Invalid z boundary')
+        if (boundaries[0][0] == 'shear periodic' and
             geometry != 'sheet'):
             raise ValueError('Can only use shear periodic boundaries in shearing sheet geometry')
 
@@ -93,9 +103,12 @@ class Param(object):
                     min_dens,
                     frame_rotation,
                     log_radial,
-                    boundaries[0],
-                    boundaries[1],
-                    boundaries[2]])
+                    boundaries[0][0],
+                    boundaries[0][1],
+                    boundaries[1][0],
+                    boundaries[1][1],
+                    boundaries[2][0],
+                    boundaries[2][1]])
 
     def to_list(self):
         """Convert parameters to list.
@@ -112,9 +125,12 @@ class Param(object):
                                 ('min_dens', np.float),
                                 ('frame_rotation', np.float),
                                 ('log_radial', np.bool),
-                                ('boundary_x', h5py.special_dtype(vlen=str)),
-                                ('boundary_y', h5py.special_dtype(vlen=str)),
-                                ('boundary_z', h5py.special_dtype(vlen=str))])
+                                ('boundary_x_in', h5py.special_dtype(vlen=str)),
+                                ('boundary_x_out', h5py.special_dtype(vlen=str)),
+                                ('boundary_y_in', h5py.special_dtype(vlen=str)),
+                                ('boundary_y_out', h5py.special_dtype(vlen=str)),
+                                ('boundary_z_in', h5py.special_dtype(vlen=str)),
+                                ('boundary_z_out', h5py.special_dtype(vlen=str))])
 
         return param_dtype, [(self.geometry,
                               self.courant,
@@ -122,6 +138,9 @@ class Param(object):
                               self.min_dens,
                               self.frame_rotation,
                               self.log_radial,
-                              self.boundaries[0],
-                              self.boundaries[1],
-                              self.boundaries[2])]
+                              self.boundaries[0][0],
+                              self.boundaries[0][1],
+                              self.boundaries[1][0],
+                              self.boundaries[1][1],
+                              self.boundaries[2][0],
+                              self.boundaries[2][1])]
