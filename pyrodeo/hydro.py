@@ -321,8 +321,7 @@ class Hydro:
                 print("Current time: {}, time step: {}".format(t, dt))
 
                 # Shear periodic x boundaries if necessary
-                if (param.geometry == 'sheet' and
-                    param.boundaries[0] == 'shear periodic'):
+                if param.boundaries[0] == 'shear periodic':
                     self.shear_periodic_boundaries(t, coords, state)
 
                 # Dimensional split: do all dimensions independently
