@@ -83,6 +83,9 @@ class Param(object):
             boundaries[2] != 'nonreflect' and
             boundaries[2] != 'periodic'):
             raise ValueError('Invalid z boundary')
+        if (boundaries[0] == 'shear periodic' and
+            geometry != 'sheet'):
+            raise ValueError('Can only use shear periodic boundaries in shearing sheet geometry')
 
         return cls([geometry,
                     courant,
