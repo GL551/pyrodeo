@@ -58,6 +58,14 @@ http://pyrodeo.readthedocs.org
 Changelog
 =========
 
+Version 0.0.9
+--------------
+
+* Add 'symmetric' boundary condition
+* Allow different boundary conditions inner/outer boundary
+* Rename 'reflect' boundary to 'closed' boundary and 'nonreflect' to 'nonreflecting'
+* Various small fixes
+
 Version 0.0.8
 --------------
 
