@@ -18,7 +18,7 @@ def test_sph():
 
     # Sound speed constant H/r = 0.05
     sim.state.soundspeed = 0.05*sim.state.soundspeed
-    sim.param.boundaries[0] = ['closed','closed'
+    sim.param.boundaries[0] = ['closed','closed']
     sim.param.boundaries[1] = ['periodic', 'periodic']
     sim.param.boundaries[2] = ['closed', 'symmetric']
 
