@@ -14,7 +14,7 @@ class Param(object):
     """Create instance from list of parameters.
 
     Args:
-        param_list ([str, float, float, float, str, str, str]): List of parameters; geometry (string), courant (float), fluxlimiter (float), frame_rotation (float), log_radial (bool), boundaries x (string), boundaries y (string) and boundaries z (string)
+        param_list ([str, float, float, float, str, str, str]): List of parameters; geometry (string), courant (float), fluxlimiter (float), frame_rotation (float), log_radial (bool), boundaries x in (string), boundaries x out (string), boundaries y in (string), boundaries y out (string), boundaries z in (string) and boundaries z out (string)
 
     Note:
         The validity of the parameters is not checked.
@@ -28,7 +28,7 @@ class Param(object):
         min_dens (float): Minimum density to switch to HLL solver to remain positive.
         frame_rotation (float): Frame rotation rate. Ignored in Cartesian coordinates, should be unity in a shearing sheet calculation and corresponds to the angular velocity of the coordinate frame in cylindrical coordinates.
         log_radial (bool): Flag whether to use logarithmic radial coordinates in cylindrical geometry.
-        boundaries ((str,str), (str,str), (str,str)): Boundary conditions (in and out) in x y and z: 'nonreflect', 'reflect', 'symmetric', or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
+        boundaries ((str,str), (str,str), (str,str)): Boundary conditions (in and out) in x y and z: 'nonreflecting', 'closed', 'symmetric', or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
 
     """
 
@@ -47,16 +47,16 @@ class Param(object):
     def from_geom(cls,
                   geometry,
                   log_radial=False,
-                  boundaries=[['reflect','reflect'],
-                              ['reflect','reflect'],
-                              ['reflect','reflect']]):
+                  boundaries=[['closed','closed'],
+                              ['closed','closed'],
+                              ['closed','closed']]):
         """Initialization from geometry and boundary conditions.
 
         Construct Parameter object from geometry and boundary conditions. All other parameters are set to standard values. Check if geometry and boundary conditions are valid.
 
         Args:
             geometry (string): 'cart' (Cartesian coordinates), 'sheet' (shearing sheet), 'cyl' (cylindrical coordinates) or 'sph' (spherical coordinates).
-            boundaries ((str,str), (str,str), (str,str)): boundary conditions; 'reflect', 'nonreflect', 'symmetry', or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
+            boundaries ((str,str), (str,str), (str,str)): boundary conditions; 'closed', 'nonreflecting', 'symmetric', or 'periodic'. In shearing sheet mode, the x boundary can be 'shear periodic'.
 
         """
         courant = 0.4
@@ -75,21 +75,21 @@ class Param(object):
         if len(boundaries) != 3:
             raise TypeError('Expected boundaries to have three elements')
         for bc in boundaries[0]:
-            if (bc != 'reflect' and
-                bc != 'nonreflect' and
+            if (bc != 'closed' and
+                bc != 'nonreflecting' and
                 bc != 'periodic' and
                 bc != 'shear periodic' and
                 bc != 'symmetric'):
                 raise ValueError('Invalid x boundary')
         for bc in boundaries[1]:
-            if (bc != 'reflect' and
-                bc != 'nonreflect' and
+            if (bc != 'closed' and
+                bc != 'nonreflecting' and
                 bc != 'periodic' and
                 bc != 'symmetric'):
                 raise ValueError('Invalid y boundary')
         for bc in boundaries[2]:
-            if (bc != 'reflect' and
-                bc != 'nonreflect' and
+            if (bc != 'closed' and
+                bc != 'nonreflecting' and
                 bc != 'periodic' and
                 bc != 'symmetric'):
                 raise ValueError('Invalid z boundary')
