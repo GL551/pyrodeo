@@ -77,7 +77,7 @@ class Roe(ClawSolver):
             dx (float): Space step.
             state (:class:`.State`): Current :class:`.State`, will be updated.
             source (ndarray): Geometric source terms, must have same shape as state.dens.
-            bc (str, str): Boundary conditions (in and out): 'periodic', 'symmetry', or 'reflect' (other boundary conditions are dealt with elsewhere).
+            bc (str, str): Boundary conditions (in and out): 'periodic', 'symmetric', or 'closed' (other boundary conditions are dealt with elsewhere).
 
         """
         # Set periodic boundaries
@@ -93,12 +93,12 @@ class Roe(ClawSolver):
             state.velz[-2:,:,:] = state.velz[2:4,:,:]
 
         # Symmetry boundary
-        if bc[0] == 'symmetry':
+        if bc[0] == 'symmetric':
             state.dens[:2,:,:] = state.dens[3:1:-1,:,:]
             state.velx[:2,:,:] = -state.velx[3:1:-1,:,:]
             state.vely[:2,:,:] = state.vely[3:1:-1,:,:]
             state.velz[:2,:,:] = state.velz[3:1:-1,:,:]
-        if bc[1] == 'symmetry':
+        if bc[1] == 'symmetric':
             state.dens[-2:,:,:] = state.dens[-3:-5:-1,:,:]
             state.velx[-2:,:,:] = -state.velx[-3:-5:-1,:,:]
             state.vely[-2:,:,:] = state.vely[-3:-5:-1,:,:]
@@ -224,24 +224,24 @@ class Roe(ClawSolver):
         fmomz = theta*f2momz - (theta - 1.0)*f1momz
 
         # Adjust boundary fluxes for closed boundaries
-        if bc[0] == 'reflect':
+        if bc[0] == 'closed':
             c = state.soundspeed[2,:,:]
             fdens[2,:,:] = 0.0
             fmomx[2,:,:] = c*c*state.dens[2,:,:] - 0.5*dx*source[2,:,:]
             fmomy[2,:,:] = 0.0
             fmomz[2,:,:] = 0.0
-        if bc[1] == 'reflect':
+        if bc[1] == 'closed':
             c = state.soundspeed[-3,:,:]
             fdens[-2,:,:] = 0.0
             fmomx[-2,:,:] = c*c*state.dens[-3,:,:] + 0.5*dx*source[-3,:,:]
             fmomy[-2,:,:] = 0.0
             fmomz[-2,:,:] = 0.0
 
-        if bc[0] == 'symmetry':
+        if bc[0] == 'symmetric':
             fdens[2,:,:] = 0.0
             fmomy[2,:,:] = 0.0
             fmomz[2,:,:] = 0.0
-        if bc[1] == 'symmetry':
+        if bc[1] == 'symmetric':
             fdens[-2,:,:] = 0.0
             fmomy[-2,:,:] = 0.0
             fmomz[-2,:,:] = 0.0
