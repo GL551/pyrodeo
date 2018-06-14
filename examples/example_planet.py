@@ -56,8 +56,8 @@ sim = pyrodeo.Simulation.from_geom('cyl',
 
 # Sound speed constant H/r = 0.05
 sim.state.soundspeed = 0.05*sim.state.soundspeed/np.sqrt(sim.coords.x)
-sim.param.boundaries[0] = 'reflect'
-sim.param.boundaries[1] = 'periodic'
+sim.param.boundaries[0] = ['closed','closed']
+sim.param.boundaries[1] = ['periodic','periodic']
 
 # Simulate a Jupiter planet up to 100 orbits
 sim.evolve(2.0*np.pi*np.array([1.0,2.0,5.0,10.0,20.0,50.0,100.0]),
