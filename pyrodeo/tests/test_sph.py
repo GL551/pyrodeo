@@ -18,9 +18,9 @@ def test_sph():
 
     # Sound speed constant H/r = 0.05
     sim.state.soundspeed = 0.05*sim.state.soundspeed
-    sim.param.boundaries[0] = 'reflect'
-    sim.param.boundaries[1] = 'periodic'
-    sim.param.boundaries[2] = 'reflect'
+    sim.param.boundaries[0] = ['closed','closed'
+    sim.param.boundaries[1] = ['periodic', 'periodic']
+    sim.param.boundaries[2] = ['closed', 'symmetric']
 
     # Simulate up to 0.01 orbits
     sim.evolve([0.01*2.0*np.pi], new_file=True)

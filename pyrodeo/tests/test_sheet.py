@@ -39,9 +39,9 @@ def test_sheet():
                                        dimensions=[1, 1, 128],
                                        domain=([], [], [-2.0,2.0]))
 
-    sim.param.boundaries[0] = 'shear periodic'
-    sim.param.boundaries[1] = 'periodic'
-    sim.param.boundaries[2] = 'reflect'
+    sim.param.boundaries[0] = ['shear periodic', 'shear periodic']
+    sim.param.boundaries[1] = ['periodic', 'periodic']
+    sim.param.boundaries[2] = ['closed', 'closed']
 
     sim.evolve([1.0], new_file=True)
 
