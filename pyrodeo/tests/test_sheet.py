@@ -17,8 +17,8 @@ def test_sheet():
     sim = pyrodeo.Simulation.from_geom('sheet',
                                        dimensions=[32, 64, 1],
                                        domain=([-Lx, Lx], [-Ly, Ly], []))
-    sim.param.boundaries[0] = 'shear periodic'
-    sim.param.boundaries[1] = 'periodic'
+    sim.param.boundaries[0] = ['shear periodic','shear periodic']
+    sim.param.boundaries[1] = ['periodic', 'periodic']
 
     # Density profile: single maximum in middle of domain
     sim.state.dens = 0.5*np.cos(np.pi*sim.coords.x/Lx) + 1.0
