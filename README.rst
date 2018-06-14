@@ -61,23 +61,23 @@ Changelog
 Version 0.0.9
 --------------
 
-* Add 'symmetric' boundary condition
-* Allow different boundary conditions inner/outer boundary
-* Rename 'reflect' boundary to 'closed' boundary and 'nonreflect' to 'nonreflecting'
-* Various small fixes
+* Add 'symmetric' boundary condition.
+* Allow different boundary conditions inner/outer boundary.
+* Rename 'reflect' boundary to 'closed' boundary and 'nonreflect' to 'nonreflecting'.
+* Various small fixes.
 
 Version 0.0.8
 --------------
 
-* Small fixes in tests and documentation
+* Small fixes in tests and documentation.
 
 Version 0.0.7
 --------------
 
-* 3D isothermal
-* Spherical coordinates
-* Logarithmic radial coordinate
-* Various small fixes
+* 3D isothermal.
+* Spherical coordinates.
+* Logarithmic radial coordinate.
+* Various small fixes.
 
 Version 0.0.6
 --------------
@@ -88,4 +88,4 @@ Version 0.0.6
 Version 0.0.5
 --------------
 
-* Initial release
+* Initial release.
