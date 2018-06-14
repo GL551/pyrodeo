@@ -233,7 +233,9 @@ Pyrodeo solves inviscid isothermal hydrodynamics, and in the shearing
 sheet and cylindrical and spherical geometries only gravity from the
 central object is considered. Extra physics, as far as it concerns
 extra source terms, can be added by a user-defined source integration
-function. See the :ref:`Examples` section.
+function. See the :ref:`Examples` section. This function is called
+once per time step and can also be used for monitoring various
+quantities (mass, torque on planet, etc.).
 
 Numerical method
 -------------------------------
@@ -496,6 +498,23 @@ A single time step in :func:`Hydro.evolve <pyrodeo.hydro.Hydro.evolve>` consists
    <pyrodeo.hydro.Hydro.postprocess>`.
 
 7. Integrate any extra source terms.
+
+Boundary conditions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The available boundary conditions are
+
+* 'closed': closed boundary, i.e. no mass flow through the
+  boundary. Waves will be reflected off the boundary.
+* 'periodic': periodic boundary.
+* 'nonreflecting': allow waves to pass through unhindered.
+* 'symmetric': assume boundary is a symmetry plane. Very much like a
+  closed boundary, but less general in that it needs the boundary to
+  be a plane of symmetry.
+
+By default, all boundaries are set to be closed; this can be changed
+by changing the `boundaries` attribute of the :class:`Param
+<pyrodeo.param.Param>` class.
 
 Output
 -------------------------------
